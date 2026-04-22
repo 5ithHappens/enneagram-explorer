@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Enneagram Explorer — Compare + Type (v4)</title>
-  <meta name="build-id" content="v7 · overview + profile · centre label" />
+  <meta name="build-id" content="v8 · centre card · bigger profile · no chips" />
   <meta name="color-scheme" content="light" />
   <style>
     :root {
@@ -283,12 +283,17 @@
     .cmpLabelGroup.expanded .cmpLabelBg { fill: #ffffff; stroke: rgba(30,41,59,.26); filter: drop-shadow(0 22px 44px rgba(30,41,59,.24)); }
     .cmpLabelGroup.expanded .cmpLabel { fill: var(--brand-text); font-size: 13.5px; }
 
-    /* Centre label — shows active prompt (Overview mode) or CTA/type (Profile mode) */
-    .centreLabel { font-family: var(--font-heading); text-anchor: middle; fill: rgba(30,41,59,.78); pointer-events: none; }
-    .centreLabel .primary { font-weight: 700; font-size: 26px; letter-spacing: -0.01em; }
-    .centreLabel .primary.small { font-size: 20px; }
-    .centreLabel .secondary { font-size: 13px; fill: rgba(71,85,105,.85); font-weight: 500; }
-    .centreLabel .emoji { font-size: 42px; }
+    /* Centre label — rounded card inside the circle.
+       Overview mode: "SHOWING" eyebrow + prompt label (large).
+       Profile mode, no type selected: big CTA.
+       Profile mode, type selected: emoji + name + centre. */
+    .centreLabel { font-family: var(--font-heading); text-anchor: middle; pointer-events: none; }
+    .centreCard {
+      fill: rgba(255,255,255,.94);
+      stroke: rgba(30,41,59,.14);
+      stroke-width: 1;
+      filter: drop-shadow(0 14px 28px rgba(30,41,59,.14));
+    }
 
     /* Overlay triangles */
     .triPath { fill: none; stroke: rgba(30,41,59,.14); stroke-width: 2; opacity: .35; transition: opacity .18s ease, stroke-width .18s ease, fill .18s ease; cursor: pointer; }
@@ -329,38 +334,13 @@
     .arrowPath.growth { stroke: var(--line-growth); }
     .arrowPath.stress { stroke: var(--line-stress); }
 
-    /* Type chips (shown in Profile mode; clickable shortcuts for the 9 types) */
-    .typeChips {
-      display: none;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      padding: 12px 12px 4px;
+    /* Profile mode: zoom the SVG to just the ring by switching to a square aspect
+       ratio and a sensible max width. The JS swaps the viewBox at the same time. */
+    body.profile-mode .svgWrap {
+      aspect-ratio: 1 / 1;
+      max-width: 640px;
+      max-height: 640px;
     }
-    .typeChips.show { display: flex; }
-    .typeChip {
-      appearance: none;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.75);
-      border-radius: 999px;
-      padding: 8px 14px 8px 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font: inherit;
-      font-size: 13px;
-      color: var(--brand-text);
-      cursor: pointer;
-      transition: background .15s ease, border-color .15s ease, transform .15s ease;
-    }
-    .typeChip .chipNum { font-weight: 700; color: var(--brand-text); }
-    .typeChip:hover { background: #fff; border-color: color-mix(in srgb, var(--brand-primary) 48%, var(--stroke)); transform: translateY(-1px); }
-    .typeChip.active { background: color-mix(in srgb, var(--brand-primary) 14%, white); border-color: color-mix(in srgb, var(--brand-primary) 60%, var(--stroke)); font-weight: 650; }
-
-    /* Profile mode: tighten the diagram so it doesn't dominate the screen when a type
-       hasn't been chosen yet. The svgWrap grows to its intrinsic aspect ratio normally;
-       in Profile mode we cap it shorter. */
-    body.profile-mode .svgWrap { max-height: 520px; }
 
     /* When the drawer is open on a reasonably wide viewport, push the main content
        over to the left so the diagram and drawer don't overlap. */
@@ -663,7 +643,7 @@
               <div class="k" style="text-transform:none; letter-spacing:0;">Anchor points shown in blue. Label rects shown in green.</div>
               <div class="k" style="margin-top:8px; text-transform:none; letter-spacing:0;">Toggle debug: <b>D</b></div>
             </div>
-            <svg viewBox="-220 -60 1200 720" role="img" aria-label="Enneagram diagram">
+            <svg viewBox="-220 -60 1200 720" role="img" aria-label="Enneagram diagram" id="diagramSvg">
               <g id="diagram" transform="translate(80,0)">
                 <path class="line" id="triangle" />
                 <path class="line" id="hexad" />
@@ -673,19 +653,19 @@
                 <g id="overlayGroups"></g>
                 <g id="overlayArrows"></g>
 
+                <!-- Centre label sits BELOW nodes so node circles render over it
+                     when a wide centre card would otherwise overlap them. -->
+                <g id="centreLabel" aria-hidden="true"></g>
+
                 <g id="nodes"></g>
                 <g id="debugLayer"></g>
                 <g id="compareLabels">
                   <g id="labelLeaders"></g>
                   <g id="labelBoxes"></g>
                 </g>
-
-                <!-- Centre label (active prompt in Overview mode; call-to-action or active type in Profile mode) -->
-                <g id="centreLabel" aria-hidden="true"></g>
               </g>
             </svg>
           </div>
-          <div class="typeChips" id="typeChips" aria-label="Type shortcuts"></div>
         </div>
       </section>
     </main>
@@ -1868,10 +1848,21 @@
       setMacro(btn.dataset.macro);
     });
 
+    // ViewBox definitions for each mode. Overview keeps the wide viewBox that
+    // has room for labels around the ring. Profile zooms in on just the ring
+    // since there are no surrounding labels in that mode.
+    const VIEWBOX = {
+      compare: '-220 -60 1200 720',
+      type:    '150 60 480 480',
+    };
+
     function setMacro(next) {
       macro = next;
       macroSeg.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.macro === macro));
       document.body.classList.toggle('profile-mode', macro === 'type');
+
+      // Swap the SVG viewBox so Profile mode zooms in on the ring.
+      if (diagramSvg) diagramSvg.setAttribute('viewBox', VIEWBOX[macro] || VIEWBOX.compare);
 
       // Mode switching never auto-opens the drawer — the diagram is the focus.
       closeDrawer();
@@ -1882,11 +1873,10 @@
         tabsEl.style.display = 'none';
         activeTab = 'overview';
         renderCompareSurface();
-        renderTypeChips(); // hides in overview mode
         toast('Overview');
       } else {
         compareSelectWrap.style.display = 'none';
-        stageHint.textContent = 'Profile: click a type (in the diagram or the row below) to explore its profile in the side panel.';
+        stageHint.textContent = 'Profile: click a type number to explore its full profile in the side panel.';
         // Clear the contents of the leader/box groups, but KEEP the groups themselves
         // — they're referenced by leadersG and labelBoxesG, and wiping their parent
         // would leave those references pointing to detached nodes.
@@ -1896,7 +1886,6 @@
         overlayGroupsG.innerHTML = '';
         clearLineOverlays();
         tabsEl.style.display = 'flex';
-        renderTypeChips();
         renderCentreLabel();
         toast('Profile');
       }
@@ -1926,72 +1915,99 @@
     drawerBackdrop.addEventListener('click', closeDrawer);
 
     // --- Centre label (inside the Enneagram circle) ---
-    // Shows the active prompt in Overview mode, and either a CTA or the active
-    // type's name in Profile mode. This visually reinforces which mode you're in.
+    // A rounded card that shows one of:
+    //   - Overview mode: "Showing" eyebrow + large prompt name (+ system, for groups)
+    //   - Profile mode, no type selected: big CTA ("Click a type / to explore its profile")
+    //   - Profile mode, type selected: emoji + name + centre
+    // Drawn BELOW the nodes in DOM order, so node circles always render on top if
+    // the card is wider than the ring.
     const centreLabelG = document.getElementById('centreLabel');
+    const diagramSvg = document.getElementById('diagramSvg');
 
     function renderCentreLabel() {
       if (!centreLabelG) return;
       centreLabelG.innerHTML = '';
 
-      const ns = 'http://www.w3.org/2000/svg';
-
-      function textLine(y, text, cls) {
-        const t = document.createElementNS(ns, 'text');
-        t.setAttribute('class', `centreLabel ${cls || ''}`.trim());
-        t.setAttribute('x', String(cx));
-        t.setAttribute('y', String(y));
-        t.setAttribute('dominant-baseline', 'middle');
-        t.textContent = text;
-        centreLabelG.appendChild(t);
-        return t;
-      }
-
+      const lines = [];
       if (macro === 'compare') {
         const p = COMPARE_PROMPTS.find(x => x.id === comparePrompt);
         if (!p) return;
-        // Primary: prompt name. For 'groups', also show the active system.
-        const primaryText = p.label;
-        const fitSmall = primaryText.length > 14;
-        // Primary line a little above centre so the (optional) secondary has room.
-        textLine(cy - (comparePrompt === 'groups' ? 12 : 0), primaryText, fitSmall ? 'primary small' : 'primary');
+        lines.push({ text: 'Showing', size: 11, weight: 600, fill: 'rgba(71,85,105,0.78)', tracking: '0.14em', upper: true, gap: 6 });
+        // Auto-shrink the primary if it's a very long prompt label
+        const primarySize = p.label.length > 22 ? 22 : (p.label.length > 16 ? 26 : 30);
+        lines.push({ text: p.label, size: primarySize, weight: 700, fill: 'rgba(30,41,59,0.94)' });
         if (comparePrompt === 'groups') {
-          textLine(cy + 16, GROUP_SYSTEMS[compareSub].label, 'secondary');
+          lines.push({ text: GROUP_SYSTEMS[compareSub].label, size: 13, weight: 500, fill: 'rgba(71,85,105,0.85)', gap: 4 });
         }
-        return;
+      } else if (!activeType) {
+        lines.push({ text: 'Click a type', size: 24, weight: 700, fill: 'rgba(30,41,59,0.94)' });
+        lines.push({ text: 'to explore its profile', size: 14, weight: 500, fill: 'rgba(71,85,105,0.85)', gap: 4 });
+      } else {
+        const d = TYPES[activeType];
+        lines.push({ text: d.emoji, size: 44, weight: 500, fill: 'rgba(30,41,59,0.92)', gap: 2 });
+        lines.push({ text: d.name, size: 22, weight: 700, fill: 'rgba(30,41,59,0.94)', gap: 2 });
+        lines.push({ text: d.centre, size: 13, weight: 500, fill: 'rgba(71,85,105,0.85)', gap: 2 });
       }
-
-      // Profile mode
-      if (!activeType) {
-        textLine(cy, 'Click a type', 'primary small');
-        textLine(cy + 22, 'to explore its profile', 'secondary');
-        return;
-      }
-      const d = TYPES[activeType];
-      // Emoji + name stacked
-      const emoji = textLine(cy - 16, d.emoji, 'emoji');
-      emoji.setAttribute('dominant-baseline', 'central');
-      textLine(cy + 24, d.name, 'primary small');
-      textLine(cy + 44, d.centre, 'secondary');
+      renderCentreCard(lines);
     }
 
-    // --- Type chip row (Profile mode only) ---
-    const typeChipsEl = document.getElementById('typeChips');
+    function renderCentreCard(lines) {
+      const ns = 'http://www.w3.org/2000/svg';
+      const padX = 22, padY = 16;
+      const defaultGap = 6;
 
-    function renderTypeChips() {
-      if (!typeChipsEl) return;
-      typeChipsEl.innerHTML = '';
-      typeChipsEl.classList.toggle('show', macro === 'type');
-      if (macro !== 'type') return;
+      // Create the text elements first so we can measure them before drawing the card.
+      const textEls = lines.map(line => {
+        const t = document.createElementNS(ns, 'text');
+        t.setAttribute('class', 'centreLabel');
+        t.setAttribute('x', String(cx));
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('font-size', String(line.size));
+        t.setAttribute('font-weight', String(line.weight || 500));
+        t.setAttribute('fill', line.fill || 'rgba(30,41,59,0.9)');
+        if (line.tracking) t.setAttribute('letter-spacing', line.tracking);
+        t.textContent = line.upper ? line.text.toUpperCase() : line.text;
+        centreLabelG.appendChild(t);
+        return t;
+      });
 
-      order.forEach(n => {
-        const d = TYPES[n];
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'typeChip' + (activeType === n ? ' active' : '');
-        btn.innerHTML = `<span class="chipNum">${n}</span> <span>${d.emoji}</span> <span>${escapeHtml(d.name)}</span>`;
-        btn.addEventListener('click', () => selectType(n));
-        typeChipsEl.appendChild(btn);
+      // Measure each line's width (rough if getComputedTextLength is polyfilled).
+      const widths = textEls.map((t, i) => {
+        const direct = t.getComputedTextLength ? t.getComputedTextLength() : 0;
+        if (direct > 0) return direct;
+        // fallback: char count × approx glyph width at this font-size
+        return lines[i].text.length * lines[i].size * 0.58;
+      });
+      // Line heights approximated from font size (matches typical Inter/Satoshi metrics).
+      const lineHeights = lines.map(l => l.size * 1.08);
+      const gaps = lines.map((l, i) => i === 0 ? 0 : (l.gap != null ? l.gap : defaultGap));
+      const totalH = lineHeights.reduce((a,b) => a+b, 0) + gaps.reduce((a,b) => a+b, 0);
+      const maxW = Math.max(...widths);
+
+      const cardW = maxW + padX * 2;
+      const cardH = totalH + padY * 2;
+      const cardX = cx - cardW / 2;
+      const cardY = cy - cardH / 2;
+
+      // Card background: inserted before the text so text is on top
+      const card = document.createElementNS(ns, 'rect');
+      card.setAttribute('class', 'centreCard');
+      card.setAttribute('x', cardX);
+      card.setAttribute('y', cardY);
+      card.setAttribute('width', cardW);
+      card.setAttribute('height', cardH);
+      card.setAttribute('rx', 16);
+      card.setAttribute('ry', 16);
+      centreLabelG.insertBefore(card, centreLabelG.firstChild);
+
+      // Position each text line at its vertical centre.
+      let cursor = cardY + padY;
+      textEls.forEach((t, i) => {
+        cursor += gaps[i];
+        const lineCentre = cursor + lineHeights[i] / 2;
+        t.setAttribute('y', lineCentre);
+        t.setAttribute('dominant-baseline', 'middle');
+        cursor += lineHeights[i];
       });
     }
 
@@ -2036,7 +2052,6 @@
       } else {
         renderTypePanel(n);
         renderCentreLabel();
-        renderTypeChips();
       }
       openDrawer();
     }
@@ -2058,7 +2073,6 @@
         tabsEl.style.display = 'flex';
       }
       renderCentreLabel();
-      renderTypeChips();
       clearLineOverlays();
       closeDrawer();
     }
