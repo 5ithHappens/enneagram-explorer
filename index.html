@@ -181,13 +181,7 @@
 
     main {
       padding: 10px clamp(18px, 3.2vw, 40px) 40px;
-      display: grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 18px;
-      align-items: start;
     }
-
-    @media (max-width: 980px) { main { grid-template-columns: 1fr; } .select { min-width: 100%; } }
 
     .card {
       border-radius: var(--r-xl);
@@ -242,7 +236,7 @@
     }
 
     .canvas { padding: 12px 10px 16px; }
-    .svgWrap { width: 100%; aspect-ratio: 5 / 3; max-height: 720px; margin: 0 auto; display: grid; place-items: center; }
+    .svgWrap { width: 100%; aspect-ratio: 5 / 3; max-height: 820px; margin: 0 auto; display: grid; place-items: center; }
     svg { width: 100%; height: 100%; }
 
     .ring { fill: none; stroke: rgba(30,41,59,.25); stroke-width: 2.1; }
@@ -275,7 +269,9 @@
     /* Compare-mode inline labels */
     .cmpLabel { font-family: var(--font-body); font-size: 12.5px; line-height: 1.28; fill: rgba(30,41,59,.78); pointer-events: none; }
     .cmpLabel tspan.small { fill: rgba(71,85,105,.92); font-size: 11.5px; }
-    .cmpLabelBg { fill: rgba(255,255,255,.72); stroke: rgba(30,41,59,.10); stroke-width: 1; rx: 10; ry: 10; }
+    .cmpLabelBg { fill: rgba(255,255,255,.72); stroke: rgba(30,41,59,.10); stroke-width: 1; rx: 10; ry: 10; cursor: default; transition: fill .18s ease, stroke .18s ease; }
+    .cmpLabelGroup.expanded .cmpLabelBg { fill: #ffffff; stroke: rgba(30,41,59,.22); filter: drop-shadow(0 14px 30px rgba(30,41,59,.18)); }
+    .cmpLabelGroup.expanded .cmpLabel { fill: var(--brand-text); }
     /* (removed clip-path approach; we size the label box to text instead) */
 
     /* Overlay triangles */
@@ -295,23 +291,59 @@
     .arrowPath.growth { stroke: var(--line-growth); }
     .arrowPath.stress { stroke: var(--line-stress); }
 
-    aside {
-      border-radius: var(--r-xl);
-      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.56));
-      border: 1px solid var(--stroke);
-      box-shadow: var(--shadow-2);
+    aside.drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: min(460px, 92vw);
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.92));
+      border-left: 1px solid var(--stroke);
+      box-shadow: -18px 0 60px rgba(30,41,59,.18);
       backdrop-filter: blur(14px);
-      overflow: clip;
-      position: sticky;
-      top: 14px;
+      overflow-y: auto;
+      z-index: 100;
+      transform: translateX(100%);
+      transition: transform .28s cubic-bezier(.2,.7,.2,1);
     }
+    aside.drawer.open { transform: translateX(0); }
+
+    .drawer-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.82);
+      color: var(--brand-text-subtle);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+      z-index: 2;
+    }
+    .drawer-close:hover { background: #fff; color: var(--brand-text); }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .28s ease;
+      z-index: 99;
+    }
+    .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
 
     .panel {
-      padding: 16px;
+      padding: 16px 18px 24px;
       display: grid;
       grid-template-rows: auto auto 1fr;
       gap: 12px;
-      max-height: calc(100vh - 90px);
     }
 
     .panelTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
@@ -550,27 +582,30 @@
           </div>
         </div>
       </section>
+    </main>
 
-      <aside aria-label="Detail panel">
-        <div class="panel">
-          <div class="panelTop">
-            <div class="typeTitle">
-              <div class="emoji" id="typeEmoji">—</div>
-              <div>
-                <h2 id="panelTitle">Compare</h2>
-                <p id="panelLead">Choose a compare prompt, then click a type to pin the full text here.</p>
-              </div>
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-              <button class="btn" id="focus" type="button">Focus</button>
+    <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true"></div>
+
+    <aside class="drawer" id="detailDrawer" aria-label="Detail panel" aria-hidden="true">
+      <button class="drawer-close" id="drawerClose" type="button" aria-label="Close details">×</button>
+      <div class="panel">
+        <div class="panelTop">
+          <div class="typeTitle">
+            <div class="emoji" id="typeEmoji">—</div>
+            <div>
+              <h2 id="panelTitle">Compare</h2>
+              <p id="panelLead">Choose a compare prompt, then click a type to pin the full text here.</p>
             </div>
           </div>
-
-          <div class="tabs" id="tabs" aria-label="Type mode tabs"></div>
-          <div class="pane" id="pane"></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+            <button class="btn" id="focus" type="button">Focus</button>
+          </div>
         </div>
-      </aside>
-    </main>
+
+        <div class="tabs" id="tabs" aria-label="Type mode tabs"></div>
+        <div class="pane" id="pane"></div>
+      </div>
+    </aside>
   </div>
 
   <div class="tooltip" id="tooltip" aria-hidden="true">
@@ -1138,15 +1173,16 @@
     }
 
     function renderCompareLabels() {
-      // Render pipeline (hand-authored anchors, no solver):
-      //   1. For each type, read its anchor from LABEL_ANCHORS.
-      //   2. Wrap + measure the text.
-      //   3. Place the box so its attachment edge passes through the anchor point.
-      //   4. Draw a leader line from the node to the anchor point (which sits exactly
-      //      on the chosen edge of the box).
+      // Render pipeline (hand-authored anchors, no solver, no leaders):
+      //   For each type, read its anchor. Wrap + measure the truncated text and
+      //   place the box so its attachment edge passes through the anchor point.
+      //   No leader line — the box sits right next to the node, so connection is visual.
+      //
+      //   Each label listens for mouseenter/mouseleave and expands to show its full
+      //   text on hover (see expandLabel/collapseLabel below).
       if (!labelBoxesG || !leadersG) return;
       labelBoxesG.innerHTML = '';
-      leadersG.innerHTML = '';
+      leadersG.innerHTML = ''; // no leaders in current design; keep group so ref stays valid
 
       const padX = 12;
       const padY = 10;
@@ -1158,7 +1194,7 @@
         const a = LABEL_ANCHORS[n];
         if (!a) continue;
 
-        // Pick text
+        // Pick raw text for this type + active prompt
         let raw;
         if (comparePrompt === 'groups') {
           const sys = GROUP_SYSTEMS[compareSub];
@@ -1169,74 +1205,130 @@
         }
 
         const lines = wrapTextIntoLines(raw, a.wrap, 3);
-
-        // Measure the widest line using a throwaway <text> element
-        const tmp = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        tmp.setAttribute('class', 'cmpLabel');
-        lines.forEach((ln, i) => {
-          const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-          ts.textContent = ln;
-          ts.setAttribute('x', '0');
-          ts.setAttribute('dy', i === 0 ? '0' : String(lineH));
-          tmp.appendChild(ts);
-        });
-        labelBoxesG.appendChild(tmp);
-        const widths = Array.from(tmp.querySelectorAll('tspan'))
-          .map(t => Math.ceil(t.getComputedTextLength()));
-        labelBoxesG.removeChild(tmp);
-
-        const textW = Math.max(...widths, 60);
-        const boxW = Math.min(a.maxW, Math.max(minW, textW + padX * 2));
-        const boxH = padY * 2 + (lines.length - 1) * lineH + 14;
-
-        // Place box so the chosen edge passes through (ax, ay).
-        let x, y;
-        switch (a.edge) {
-          case 'left':   x = a.ax;            y = a.ay - boxH / 2; break;
-          case 'right':  x = a.ax - boxW;     y = a.ay - boxH / 2; break;
-          case 'top':    x = a.ax - boxW / 2; y = a.ay;            break;
-          case 'bottom': x = a.ax - boxW / 2; y = a.ay - boxH;     break;
-          default:       x = a.ax - boxW / 2; y = a.ay - boxH / 2;
-        }
+        const { boxW, boxH } = measureBox(lines, a.maxW, padX, padY, lineH, minW);
+        const { x, y } = placeBox(a, boxW, boxH);
 
         const rect = { x, y, w: boxW, h: boxH };
-        items.push({ n, lines, rect });
 
-        // Leader: node → anchor point (which lies exactly on the box's chosen edge)
-        const nodeP = points[n];
-        const leader = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        leader.setAttribute('d',
-          `M ${nodeP.x.toFixed(2)} ${nodeP.y.toFixed(2)} L ${a.ax.toFixed(2)} ${a.ay.toFixed(2)}`);
-        leader.setAttribute('stroke', 'rgba(30,41,59,.18)');
-        leader.setAttribute('stroke-width', '1.2');
-        leader.setAttribute('fill', 'none');
-        leadersG.appendChild(leader);
+        // Wrap bg + text in a <g> so we can hover the unit and raise it as a unit
+        const labelG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        labelG.setAttribute('class', 'cmpLabelGroup');
 
-        // Background rect
         const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         bg.setAttribute('class', 'cmpLabelBg');
         bg.setAttribute('x', x);
         bg.setAttribute('y', y);
         bg.setAttribute('width', boxW);
         bg.setAttribute('height', boxH);
-        labelBoxesG.appendChild(bg);
+        labelG.appendChild(bg);
 
-        // Text
         const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         textEl.setAttribute('class', 'cmpLabel');
-        textEl.setAttribute('x', x + padX);
-        textEl.setAttribute('y', y + padY + 14);
-        lines.forEach((ln, idx) => {
-          const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-          ts.textContent = ln;
-          ts.setAttribute('x', x + padX);
-          ts.setAttribute('dy', idx === 0 ? '0' : String(lineH));
-          textEl.appendChild(ts);
-        });
-        labelBoxesG.appendChild(textEl);
+        writeTextLines(textEl, lines, x, y, padX, padY, lineH);
+        labelG.appendChild(textEl);
+
+        labelBoxesG.appendChild(labelG);
+
+        // Stash everything expandLabel/collapseLabel needs
+        const item = {
+          n, raw, anchor: a,
+          truncatedLines: lines,
+          truncatedRect: { x, y, w: boxW, h: boxH },
+          labelG, bg, textEl,
+          padX, padY, lineH, minW,
+        };
+        items.push(item);
+
+        labelG.addEventListener('mouseenter', () => expandLabel(item));
+        labelG.addEventListener('mouseleave', () => collapseLabel(item));
       }
 
-      renderDebugOverlay(items);
+      renderDebugOverlay(items.map(it => ({ rect: it.truncatedRect })));
+    }
+
+    function measureBox(lines, maxW, padX, padY, lineH, minW) {
+      // Measure the widest wrapped line using a throwaway <text> element and
+      // return the box dimensions that fit the text within [minW, maxW].
+      const tmp = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      tmp.setAttribute('class', 'cmpLabel');
+      lines.forEach((ln, i) => {
+        const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        ts.textContent = ln;
+        ts.setAttribute('x', '0');
+        ts.setAttribute('dy', i === 0 ? '0' : String(lineH));
+        tmp.appendChild(ts);
+      });
+      labelBoxesG.appendChild(tmp);
+      const widths = Array.from(tmp.querySelectorAll('tspan'))
+        .map(t => Math.ceil(t.getComputedTextLength()));
+      labelBoxesG.removeChild(tmp);
+
+      const textW = Math.max(...widths, 60);
+      const boxW = Math.min(maxW, Math.max(minW, textW + padX * 2));
+      const boxH = padY * 2 + (lines.length - 1) * lineH + 14;
+      return { boxW, boxH };
+    }
+
+    function placeBox(anchor, boxW, boxH) {
+      // Place the box so its attachment edge passes through (ax, ay).
+      // The anchor is pinned; the box grows away from the circle.
+      let x, y;
+      switch (anchor.edge) {
+        case 'left':   x = anchor.ax;            y = anchor.ay - boxH / 2; break;
+        case 'right':  x = anchor.ax - boxW;     y = anchor.ay - boxH / 2; break;
+        case 'top':    x = anchor.ax - boxW / 2; y = anchor.ay;            break;
+        case 'bottom': x = anchor.ax - boxW / 2; y = anchor.ay - boxH;     break;
+        default:       x = anchor.ax - boxW / 2; y = anchor.ay - boxH / 2;
+      }
+      return { x, y };
+    }
+
+    function writeTextLines(textEl, lines, x, y, padX, padY, lineH) {
+      // Replace any existing tspans with new ones positioned inside a box at (x, y).
+      while (textEl.firstChild) textEl.removeChild(textEl.firstChild);
+      textEl.setAttribute('x', x + padX);
+      textEl.setAttribute('y', y + padY + 14);
+      lines.forEach((ln, idx) => {
+        const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        ts.textContent = ln;
+        ts.setAttribute('x', x + padX);
+        ts.setAttribute('dy', idx === 0 ? '0' : String(lineH));
+        textEl.appendChild(ts);
+      });
+    }
+
+    function expandLabel(item) {
+      // Re-wrap at a looser width, no line cap, and re-measure/re-place the same box.
+      // Because the anchor + edge logic is unchanged, the attachment point stays
+      // exactly where it was — the box just grows on its free edges.
+      const { anchor: a, raw, bg, textEl, labelG, padX, padY, lineH, minW } = item;
+
+      // Looser wrap: use ~1.35× the original budget, no max-lines cap.
+      const fullLines = wrapTextIntoLines(raw, Math.round(a.wrap * 1.35), 99);
+      // Allow the expanded box to grow wider than maxW (but not so wide it leaves the SVG).
+      const expandedMaxW = Math.min(a.maxW + 120, 380);
+      const { boxW, boxH } = measureBox(fullLines, expandedMaxW, padX, padY, lineH, minW);
+      const { x, y } = placeBox(a, boxW, boxH);
+
+      bg.setAttribute('x', x);
+      bg.setAttribute('y', y);
+      bg.setAttribute('width', boxW);
+      bg.setAttribute('height', boxH);
+      writeTextLines(textEl, fullLines, x, y, padX, padY, lineH);
+
+      labelG.classList.add('expanded');
+      // Raise to top (SVG z-order is DOM order)
+      labelBoxesG.appendChild(labelG);
+    }
+
+    function collapseLabel(item) {
+      const { bg, textEl, labelG, truncatedLines, truncatedRect, padX, padY, lineH } = item;
+      bg.setAttribute('x', truncatedRect.x);
+      bg.setAttribute('y', truncatedRect.y);
+      bg.setAttribute('width', truncatedRect.w);
+      bg.setAttribute('height', truncatedRect.h);
+      writeTextLines(textEl, truncatedLines, truncatedRect.x, truncatedRect.y, padX, padY, lineH);
+      labelG.classList.remove('expanded');
     }
 
 
@@ -1592,15 +1684,16 @@
 
       if (macro === 'compare') {
         compareSelectWrap.style.display = 'inline-flex';
-        stageHint.textContent = 'Compare Mode: the selected prompt appears around the diagram.';
+        stageHint.textContent = 'Compare Mode: the selected prompt appears around the diagram. Hover a label to see the full text.';
         tabsEl.style.display = 'none';
         activeTab = 'overview';
         renderCompareSurface();
-        if (activeType) renderComparePanel(activeType);
+        if (activeType) { renderComparePanel(activeType); openDrawer(); }
+        else { closeDrawer(); }
         toast('Compare Mode');
       } else {
         compareSelectWrap.style.display = 'none';
-        stageHint.textContent = 'Type Mode: click a type, then explore tabs in the panel.';
+        stageHint.textContent = 'Type Mode: click a type, then explore the tabs that slide in from the right.';
         // Clear the contents of the leader/box groups, but KEEP the groups themselves
         // — they're referenced by leadersG and labelBoxesG, and wiping their parent
         // would leave those references pointing to detached nodes.
@@ -1610,10 +1703,31 @@
         overlayGroupsG.innerHTML = '';
         clearLineOverlays();
         tabsEl.style.display = 'flex';
-        if (activeType) renderTypePanel(activeType);
+        if (activeType) { renderTypePanel(activeType); openDrawer(); }
+        else { closeDrawer(); }
         toast('Type Mode');
       }
     }
+
+    // --- Detail drawer ---
+    const detailDrawer = document.getElementById('detailDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const drawerClose = document.getElementById('drawerClose');
+
+    function openDrawer() {
+      detailDrawer.classList.add('open');
+      detailDrawer.setAttribute('aria-hidden', 'false');
+      drawerBackdrop.classList.add('open');
+      drawerBackdrop.setAttribute('aria-hidden', 'false');
+    }
+    function closeDrawer() {
+      detailDrawer.classList.remove('open');
+      detailDrawer.setAttribute('aria-hidden', 'true');
+      drawerBackdrop.classList.remove('open');
+      drawerBackdrop.setAttribute('aria-hidden', 'true');
+    }
+    drawerClose.addEventListener('click', closeDrawer);
+    drawerBackdrop.addEventListener('click', closeDrawer);
 
     // --- Surface rendering ---
     function renderCompareSurface() {
@@ -1623,8 +1737,8 @@
       if (cmpTitleTextEl && p) cmpTitleTextEl.textContent = p.label;
       if (cmpHintTextEl) {
         cmpHintTextEl.textContent = (comparePrompt === 'groups')
-          ? `System: ${GROUP_SYSTEMS[compareSub].label} — hover a type to preview • click to pin details`
-          : 'Hover a type to preview • click to pin details';
+          ? `System: ${GROUP_SYSTEMS[compareSub].label} — hover a label for the full text • click a type to pin details`
+          : 'Hover a label for the full text • click a type to pin details';
       }
 
       renderCompareLabels();
@@ -1645,6 +1759,7 @@
       } else {
         renderTypePanel(n);
       }
+      openDrawer();
     }
 
     function clearSelection() {
@@ -1662,6 +1777,7 @@
         tabsEl.style.display = 'flex';
       }
       clearLineOverlays();
+      closeDrawer();
     }
 
     resetBtn.addEventListener('click', () => {
@@ -1671,7 +1787,12 @@
     });
 
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') return clearSelection();
+      if (e.key === 'Escape') {
+        // If the drawer is open, Esc just closes it. Otherwise Esc also clears
+        // the pinned type selection.
+        if (detailDrawer.classList.contains('open')) return closeDrawer();
+        return clearSelection();
+      }
       const n = Number(e.key);
       if (Number.isFinite(n) && n >= 1 && n <= 9) selectType(n);
     });
@@ -1685,7 +1806,7 @@
     // --- Init ---
     renderCompareSurface();
     setMacro('compare');
-    selectType(9);
+    closeDrawer();
 
     // Tabs only created when Type Mode is entered.
     renderTabs();
