@@ -1,0 +1,1694 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Enneagram Explorer — Compare + Type (v4)</title>
+  <meta name="build-id" content="2026-04-22-hand-authored-anchors-v1" />
+  <meta name="color-scheme" content="light" />
+  <style>
+    :root {
+      --brand-primary: #40C4D3;
+      --brand-text: #1E293B;
+      --brand-text-subtle: #475569;
+      --brand-bg: #FFFFFF;
+      --brand-page-bg: #F3F4F6;
+      --font-heading: Satoshi, Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      --font-body: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      --stroke: rgba(30,41,59,.14);
+      --stroke-2: rgba(30,41,59,.10);
+      --shadow: 0 18px 60px rgba(30,41,59,.12);
+      --shadow-2: 0 10px 30px rgba(30,41,59,.10);
+      --r-xl: 22px;
+      --r-lg: 16px;
+      --r-md: 12px;
+
+      /* overlay palette (restrained) */
+      --ol-a: rgba(59,130,246,.22);  /* blue */
+      --ol-b: rgba(16,185,129,.22);  /* green */
+      --ol-c: rgba(239,68,68,.22);   /* red */
+      --ol-d: rgba(236,72,153,.20);  /* magenta */
+      --ol-e: rgba(245,158,11,.20);  /* amber/yellow */
+      --ol-f: rgba(6,182,212,.20);   /* cyan */
+
+      --line-growth: rgba(34,197,94,.75);
+      --line-stress: rgba(239,68,68,.70);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--brand-page-bg);
+      color: var(--brand-text);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(1200px 800px at 18% 12%, color-mix(in srgb, var(--brand-primary) 14%, transparent) 0%, transparent 60%),
+        radial-gradient(900px 700px at 82% 18%, color-mix(in srgb, var(--brand-primary) 9%, transparent) 0%, transparent 62%),
+        radial-gradient(900px 700px at 70% 86%, color-mix(in srgb, var(--brand-primary) 7%, transparent) 0%, transparent 62%),
+        radial-gradient(900px 700px at 16% 86%, rgba(30,41,59,.05) 0%, transparent 62%);
+      opacity: .85;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .07;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E");
+      background-size: 420px 420px;
+    }
+
+    .wrap { min-height: 100%; display: grid; grid-template-rows: auto 1fr; position: relative; }
+
+    header {
+      padding: 22px clamp(18px, 3.2vw, 40px) 10px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .topRow {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      font-size: clamp(22px, 2.5vw, 32px);
+      line-height: 1.1;
+    }
+
+    .sub {
+      color: var(--brand-text-subtle);
+      font-size: 13px;
+      line-height: 1.45;
+      max-width: 110ch;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .seg {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      padding: 6px;
+      background: rgba(255,255,255,.58);
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      box-shadow: 0 10px 28px rgba(30,41,59,.06);
+      backdrop-filter: blur(10px);
+      flex-wrap: wrap;
+    }
+
+    .seg button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 13px;
+      color: var(--brand-text);
+      cursor: pointer;
+      transition: background .15s ease;
+      white-space: nowrap;
+    }
+
+    .seg button.active {
+      background: color-mix(in srgb, var(--brand-primary) 14%, white);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-primary) 34%, transparent);
+      font-weight: 650;
+    }
+
+    .select {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      background: rgba(255,255,255,.58);
+      box-shadow: 0 10px 28px rgba(30,41,59,.06);
+      backdrop-filter: blur(10px);
+      min-width: min(560px, 100%);
+    }
+
+    .select label {
+      color: var(--brand-text-subtle);
+      font-size: 12px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .select select {
+      width: 100%;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.78);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 14px;
+      color: var(--brand-text);
+    }
+
+    .select .mini {
+      width: 220px;
+      max-width: 45vw;
+    }
+
+    main {
+      padding: 10px clamp(18px, 3.2vw, 40px) 40px;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) { main { grid-template-columns: 1fr; } .select { min-width: 100%; } }
+
+    .card {
+      border-radius: var(--r-xl);
+      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.56));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      overflow: clip;
+      position: relative;
+    }
+
+    .cardHeader {
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 1px solid var(--stroke-2);
+    }
+
+    .diagTitle {
+      margin-top: 6px;
+      font-family: var(--font-heading);
+      font-weight: 750;
+      letter-spacing: -0.01em;
+      font-size: 16px;
+      color: rgba(30,41,59,.92);
+    }
+
+    .diagHint {
+      margin-top: 2px;
+      font-size: 12px;
+      color: rgba(30,41,59,.55);
+    }
+
+    .hint {
+      color: var(--brand-text-subtle);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.55);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 13px;
+      color: var(--brand-text);
+      cursor: pointer;
+    }
+
+    .canvas { padding: 12px 10px 16px; }
+    .svgWrap { width: 100%; aspect-ratio: 5 / 3; max-height: 720px; margin: 0 auto; display: grid; place-items: center; }
+    svg { width: 100%; height: 100%; }
+
+    .ring { fill: none; stroke: rgba(30,41,59,.25); stroke-width: 2.1; }
+    .line { stroke: rgba(30,41,59,.14); stroke-width: 1.6; fill: none; }
+
+    .node { cursor: pointer; }
+    .node circle {
+      fill: rgba(255,255,255,.88);
+      stroke: rgba(30,41,59,.24);
+      stroke-width: 1.4;
+      transition: fill .18s ease, stroke .18s ease;
+    }
+    .node text {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 18px;
+      fill: rgba(30,41,59,.9);
+      pointer-events: none;
+      transition: fill .18s ease;
+    }
+    .node.hover circle {
+      fill: color-mix(in srgb, var(--brand-primary) 10%, white);
+      stroke: color-mix(in srgb, var(--brand-primary) 48%, rgba(30,41,59,.28));
+    }
+    .node.active circle {
+      fill: color-mix(in srgb, var(--brand-primary) 16%, white);
+      stroke: color-mix(in srgb, var(--brand-primary) 70%, rgba(30,41,59,.28));
+    }
+
+    /* Compare-mode inline labels */
+    .cmpLabel { font-family: var(--font-body); font-size: 12.5px; line-height: 1.28; fill: rgba(30,41,59,.78); pointer-events: none; }
+    .cmpLabel tspan.small { fill: rgba(71,85,105,.92); font-size: 11.5px; }
+    .cmpLabelBg { fill: rgba(255,255,255,.72); stroke: rgba(30,41,59,.10); stroke-width: 1; rx: 10; ry: 10; }
+    /* (removed clip-path approach; we size the label box to text instead) */
+
+    /* Overlay triangles */
+    .triPath { fill: none; stroke: rgba(30,41,59,.14); stroke-width: 2; opacity: .35; }
+    .triPath.on { opacity: .92; stroke-width: 3.2; filter: drop-shadow(0 14px 18px rgba(30,41,59,.10)); }
+
+    .triPath.a { stroke: var(--ol-a); }
+    .triPath.b { stroke: var(--ol-b); }
+    .triPath.c { stroke: var(--ol-c); }
+    .triPath.d { stroke: var(--ol-d); }
+    .triPath.e { stroke: var(--ol-e); }
+    .triPath.f { stroke: var(--ol-f); }
+
+    /* Line highlight overlays */
+    .arrowPath { fill: none; stroke-width: 5.5; opacity: 0; stroke-linecap: round; stroke-linejoin: round; }
+    .arrowPath.show { opacity: 1; filter: drop-shadow(0 10px 18px rgba(0,0,0,.08)); }
+    .arrowPath.growth { stroke: var(--line-growth); }
+    .arrowPath.stress { stroke: var(--line-stress); }
+
+    aside {
+      border-radius: var(--r-xl);
+      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.56));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow-2);
+      backdrop-filter: blur(14px);
+      overflow: clip;
+      position: sticky;
+      top: 14px;
+    }
+
+    .panel {
+      padding: 16px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 12px;
+      max-height: calc(100vh - 90px);
+    }
+
+    .panelTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+
+    .typeTitle { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+    .emoji {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--brand-primary) 14%, white);
+      border: 1px solid color-mix(in srgb, var(--brand-primary) 40%, rgba(30,41,59,.18));
+      font-size: 18px;
+      flex: 0 0 auto;
+    }
+
+    .typeTitle h2 {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-weight: 750;
+      letter-spacing: -0.015em;
+      font-size: 18px;
+      line-height: 1.1;
+    }
+
+    .typeTitle p {
+      margin: 4px 0 0;
+      color: var(--brand-text-subtle);
+      font-size: 13px;
+      line-height: 1.35;
+      max-width: 52ch;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: none;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 8px;
+      border-radius: 16px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.55);
+    }
+
+    .tab {
+      border: 0;
+      background: transparent;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font: inherit;
+      font-size: 13px;
+      color: var(--brand-text);
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: color-mix(in srgb, var(--brand-primary) 14%, white);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-primary) 34%, transparent);
+      font-weight: 650;
+    }
+
+    .pane { overflow: auto; padding-right: 6px; }
+
+    .section {
+      border: 1px solid var(--stroke-2);
+      border-radius: var(--r-lg);
+      background: rgba(255,255,255,.58);
+      padding: 12px 12px;
+      box-shadow: 0 10px 24px rgba(30,41,59,.06);
+      margin-bottom: 10px;
+    }
+
+    .section h3 {
+      margin: 0 0 8px;
+      font-family: var(--font-heading);
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .copy { color: rgba(30,41,59,.88); font-size: 14px; line-height: 1.55; }
+    .copy ul { margin: 8px 0 0; padding-left: 18px; }
+    .copy li { margin: 6px 0; }
+    .small { color: var(--brand-text-subtle); font-size: 13px; line-height: 1.4; }
+
+    .chipRow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip {
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.62);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chip b { font-weight: 650; }
+
+    .tooltip {
+      position: fixed;
+      z-index: 50;
+      pointer-events: none;
+      max-width: min(420px, calc(100vw - 28px));
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow-2);
+      backdrop-filter: blur(14px);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .12s ease, transform .12s ease;
+    }
+
+    .tooltip.show { opacity: 1; transform: translateY(0); }
+
+    .ttTitle { display: flex; align-items: center; gap: 8px; font-family: var(--font-heading); font-weight: 750; letter-spacing: -0.01em; }
+    .ttBody { margin-top: 6px; color: rgba(30,41,59,.86); font-size: 13px; line-height: 1.45; }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: rgba(255,255,255,.80);
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow-2);
+      backdrop-filter: blur(14px);
+      display: none;
+      max-width: 420px;
+      color: var(--brand-text);
+      z-index: 60;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .toast.show { display: block; animation: pop .2s ease; }
+
+    @keyframes pop {
+      from { transform: translateY(8px); opacity: .0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+  /* Debug panel (only visible when DEBUG is on) */
+    .debugPanel{
+      position:absolute;
+      left: 14px;
+      bottom: 14px;
+      z-index: 90;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow-2);
+      backdrop-filter: blur(12px);
+      display:none;
+      min-width: 260px;
+    }
+    .debugPanel.show{ display:block; }
+    .debugPanel .row{ display:flex; align-items:center; justify-content:space-between; gap: 10px; }
+    .debugPanel .k{ font-size: 11px; color: rgba(71,85,105,.9); letter-spacing:.06em; text-transform: uppercase; }
+    .debugPanel .v{ font-size: 12px; color: rgba(30,41,59,.92); font-weight: 650; }
+    .debugPanel input[type="range"]{ width: 100%; margin-top: 8px; }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="topRow">
+        <div>
+          <h1>Enneagram Explorer</h1>
+          <div class="sub">
+            Macro modes: <b>Compare</b> (one prompt across all 9) and <b>Type</b> (one type explored in tabs).<br>
+            Copy in this build is a mix of real paraphrased text + <i>(Placeholder — refine wording)</i> flags.
+          </div>
+        </div>
+        <div class="seg" id="macroSeg" aria-label="Macro mode selector">
+          <button type="button" data-macro="compare" class="active">Compare</button>
+          <button type="button" data-macro="type">Type</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="select" id="compareSelect">
+          <label for="cmpPrompt">Compare prompt</label>
+          <select id="cmpPrompt"></select>
+          <select id="cmpSub" class="mini" style="display:none;"></select>
+        </div>
+
+        
+      </div>
+    </header>
+
+    <main>
+      <section class="card" aria-label="Enneagram map">
+        <div class="cardHeader">
+          <div>
+            <div class="hint" id="stageHint">Compare Mode: the selected prompt appears around the diagram.</div>
+            <div class="diagTitle" id="cmpTitleText">Core motivation</div>
+            <div class="diagHint" id="cmpHintText">Hover a type to preview • Click to pin details</div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn" id="reset" type="button">Reset</button>
+          </div>
+        </div>
+
+        <div class="canvas">
+          <div class="svgWrap" style="position:relative;">
+            <div class="debugPanel" id="debugPanel">
+              <div class="k" style="text-transform:none; letter-spacing:0;">Anchor points shown in blue. Label rects shown in green.</div>
+              <div class="k" style="margin-top:8px; text-transform:none; letter-spacing:0;">Toggle debug: <b>D</b></div>
+            </div>
+            <svg viewBox="-220 -60 1200 720" role="img" aria-label="Enneagram diagram">
+              <g id="diagram" transform="translate(80,0)">
+                <path class="line" id="triangle" />
+                <path class="line" id="hexad" />
+                <circle class="ring" cx="300" cy="300" r="190" />
+
+                <!-- overlays -->
+                <g id="overlayGroups"></g>
+                <g id="overlayArrows"></g>
+
+                <g id="nodes"></g>
+                <g id="debugLayer"></g>
+                <g id="compareLabels">
+                  <g id="labelLeaders"></g>
+                  <g id="labelBoxes"></g>
+                </g>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <aside aria-label="Detail panel">
+        <div class="panel">
+          <div class="panelTop">
+            <div class="typeTitle">
+              <div class="emoji" id="typeEmoji">—</div>
+              <div>
+                <h2 id="panelTitle">Compare</h2>
+                <p id="panelLead">Choose a compare prompt, then click a type to pin the full text here.</p>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+              <button class="btn" id="focus" type="button">Focus</button>
+            </div>
+          </div>
+
+          <div class="tabs" id="tabs" aria-label="Type mode tabs"></div>
+          <div class="pane" id="pane"></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="tooltip" id="tooltip" aria-hidden="true">
+    <div class="ttTitle" id="ttTitle"></div>
+    <div class="ttBody" id="ttBody"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // --- Geometry ---
+    const cx = 300, cy = 300, r = 190; // slightly smaller so outside labels fit better
+    const order = [9,1,2,3,4,5,6,7,8];
+    const angles = { 9:0, 1:40, 2:80, 3:120, 4:160, 5:200, 6:240, 7:280, 8:320 };
+
+    function polarToXY(angleDeg, radius=r) {
+      const a = (angleDeg - 90) * Math.PI / 180;
+      return { x: cx + Math.cos(a) * radius, y: cy + Math.sin(a) * radius };
+    }
+
+    const points = Object.fromEntries(order.map(n => [n, polarToXY(angles[n]) ]));
+
+    function pathFrom(seq) {
+      return seq.map((n,i) => `${i===0?'M':'L'} ${points[n].x.toFixed(2)} ${points[n].y.toFixed(2)}`).join(' ') + ' Z';
+    }
+
+    function openPath(seq) {
+      return seq.map((n,i) => `${i===0?'M':'L'} ${points[n].x.toFixed(2)} ${points[n].y.toFixed(2)}`).join(' ');
+    }
+
+    document.getElementById('triangle').setAttribute('d', pathFrom([9,3,6]));
+    document.getElementById('hexad').setAttribute('d', pathFrom([1,4,2,8,5,7]));
+
+    // --- Data (paraphrased + placeholders flagged) ---
+    // Note: We are not reproducing book text verbatim.
+    const TYPES = {
+      1: { emoji:'✅', name:'Type 1', centre:'Instinctive (Gut)',
+        coreMotivation:'To live with integrity and to improve what feels out of alignment. (Placeholder — refine wording)',
+        coreFear:'Being bad, corrupt, or defective.',
+        coreDesire:'To be good and in balance; to have integrity.',
+        childhoodMessage:'You are good.',
+        wakeUpCall:'A heavy sense of personal obligation to fix what is wrong.',
+        warningSign:'Fear that their ideals may be wrong or counterproductive.',
+        lines:{stress:4, growth:7},
+        growthLineExplanation:'Moving toward 7 can look like more spontaneity and play, loosening the inner grip without abandoning standards. (Placeholder — refine wording)',
+        stressLineExplanation:'Under pressure, some Ones become moodier and more self-conscious, with a stronger sense of dissatisfaction. (Placeholder — refine wording)'
+      },
+      2: { emoji:'🤝', name:'Type 2', centre:'Feeling (Heart)',
+        coreMotivation:'To earn connection through care—being close, helpful, and needed. (Placeholder — refine wording)',
+        coreFear:'Being unloved or unwanted.',
+        coreDesire:'To feel loved.',
+        childhoodMessage:'You are wanted.',
+        wakeUpCall:'People-pleasing as a way to secure connection.',
+        warningSign:'Fear that they are driving loved ones away.',
+        lines:{stress:8, growth:4},
+        growthLineExplanation:'Moving toward 4 can look like owning personal feelings and needs directly, not just tracking others. (Placeholder — refine wording)',
+        stressLineExplanation:'Under pressure, Twos may become more forceful or controlling about getting needs met. (Placeholder — refine wording)'
+      },
+      3: { emoji:'🏆', name:'Type 3', centre:'Feeling (Heart)',
+        coreMotivation:'To be valuable by achieving, excelling, and embodying what’s rewarded. (Placeholder — refine wording)',
+        coreFear:'Being worthless without achievement.',
+        coreDesire:'To be valuable.',
+        childhoodMessage:'You are loved for yourself.',
+        wakeUpCall:'Equating value with success and performance.',
+        warningSign:'Fear that they are failing and their image is fraudulent.',
+        lines:{stress:9, growth:6},
+        growthLineExplanation:'Moving toward 6 can look like commitment to people and values, not just outcomes—more cooperation, less image-management. (Placeholder — refine wording)',
+        stressLineExplanation:'Under pressure, Threes can disengage and go on autopilot, avoiding what they feel. (Placeholder — refine wording)'
+      },
+      4: { emoji:'🎭', name:'Type 4', centre:'Feeling (Heart)',
+        coreMotivation:'To find meaning and identity—being deeply true to the inner experience. (Placeholder — refine wording)',
+        coreFear:'Having no identity or personal significance.',
+        coreDesire:'To be oneself.',
+        childhoodMessage:'You are seen for who you are.',
+        wakeUpCall:'Using imagination to intensify feelings and longing.',
+        warningSign:'Fear they are wasting their life and opportunities.',
+        lines:{stress:2, growth:1},
+        growthLineExplanation:'Moving toward 1 can look like structure, discernment, and principled action—turning feeling into follow-through. (Placeholder — refine wording)',
+        stressLineExplanation:'Under pressure, Fours can cling for reassurance or become more demanding of closeness. (Placeholder — refine wording)'
+      },
+      5: { emoji:'🔍', name:'Type 5', centre:'Thinking (Head)',
+        coreMotivation:'To preserve inner resources by understanding and keeping enough space. (Placeholder — refine wording)',
+        coreFear:'Being helpless, incapable, or overwhelmed.',
+        coreDesire:'To be competent.',
+        childhoodMessage:'Your needs are not a problem.',
+        wakeUpCall:'Withdrawing from reality into concepts and mental worlds.',
+        warningSign:'Fear they will never find a place in the world with people.',
+        lines:{stress:7, growth:8},
+        growthLineExplanation:'Moving toward 8 can look like decisive engagement and plainspoken action, taking up space in the world. (Placeholder — refine wording)',
+        stressLineExplanation:'Under pressure, Fives can become scattered and overstimulated, chasing options or ideas. (Placeholder — refine wording)'
+      },
+      6: { emoji:'🔒', name:'Type 6', centre:'Thinking (Head)',
+        coreMotivation:'To secure guidance and stability by anticipating risk and building support. (Placeholder — refine wording)',
+        coreFear:'Being without support or guidance.',
+        coreDesire:'To be secure.',
+        childhoodMessage:'You are safe.',
+        wakeUpCall:'Becoming dependent on something outside the self for guidance.',
+        warningSign:'Fear that their own actions have harmed their security.',
+        lines:{stress:3, growth:9},
+        growthLineExplanation:'Moving toward 9 can look like steadiness and calm, trusting the next step without constant scanning. (Placeholder — refine wording)',
+        stressLineExplanation:'Under pressure, Sixes can hustle for approval or certainty, becoming more competitive or image-driven. (Placeholder — refine wording)'
+      },
+      7: { emoji:'🎉', name:'Type 7', centre:'Thinking (Head)',
+        coreMotivation:'To stay free and satisfied by keeping options open and avoiding confinement. (Placeholder — refine wording)',
+        coreFear:'Being deprived or trapped in pain.',
+        coreDesire:'To be happy and satisfied.',
+        childhoodMessage:'You will be taken care of.',
+        wakeUpCall:'A feeling that something better is available elsewhere.',
+        warningSign:'Fear that their pursuits are bringing only pain.',
+        lines:{stress:1, growth:5},
+        growthLineExplanation:'Moving toward 5 can look like depth, focus, and staying with experience long enough to learn from it. (Placeholder — refine wording)',
+        stressLineExplanation:'Under pressure, Sevens can become more critical and perfectionistic, tightening around details. (Placeholder — refine wording)'
+      },
+      8: { emoji:'🦁', name:'Type 8', centre:'Instinctive (Gut)',
+        coreMotivation:'To protect autonomy and ensure strength has impact in the real world. (Placeholder — refine wording)',
+        coreFear:'Being harmed or controlled by others.',
+        coreDesire:'To protect oneself and determine one’s path.',
+        childhoodMessage:'You will not be betrayed.',
+        wakeUpCall:'Pushing and struggling to force things to happen.',
+        warningSign:'Fear others are turning against them and will retaliate.',
+        lines:{stress:5, growth:2},
+        growthLineExplanation:'Moving toward 2 can look like strength expressed as care—warmth without losing boundaries. (Placeholder — refine wording)',
+        stressLineExplanation:'Under pressure, Eights can withdraw and become more guarded and watchful. (Placeholder — refine wording)'
+      },
+      9: { emoji:'☮️', name:'Type 9', centre:'Instinctive (Gut)',
+        coreMotivation:'To keep connection and inner steadiness by reducing conflict and disturbance. (Placeholder — refine wording)',
+        coreFear:'Loss of connection; fragmentation.',
+        coreDesire:'To be at peace.',
+        childhoodMessage:'Your presence matters.',
+        wakeUpCall:'Outwardly accommodating to avoid conflict.',
+        warningSign:'Fear reality will force them to deal with their problems.',
+        lines:{stress:6, growth:3},
+        growthLineExplanation:'Moving toward 3 can look like prioritising, acting, and allowing visibility without losing groundedness. (Placeholder — refine wording)',
+        stressLineExplanation:'Under pressure, Nines can become more anxious and second-guessing, scanning for what could go wrong. (Placeholder — refine wording)'
+      },
+    };
+
+    const GROUP_SYSTEMS = {
+      centres: {
+        label: 'Centres (Gut/Heart/Head)',
+        groups: [
+          { id:'gut', name:'Instinctive (Gut)', types:[8,9,1], color:'a',
+            summary:'Concerned with boundaries and resistance; anger/rage is often the signal emotion.',
+            perType: {
+              8: 'When activated, energy moves outward: protect, push back, take charge. (Placeholder — refine wording)',
+              9: 'When activated, energy can go numb or diffuse: minimise disturbance, keep things steady. (Placeholder — refine wording)',
+              1: 'When activated, energy can tighten inward: hold standards, self-correct, restrain impulses. (Placeholder — refine wording)'
+            }
+          },
+          { id:'heart', name:'Feeling (Heart)', types:[2,3,4], color:'b',
+            summary:'Concerned with self-image and value; shame/self-consciousness often sits underneath.',
+            perType: {
+              2: 'Tracks others to secure closeness; can over-give to earn belonging. (Placeholder — refine wording)',
+              3: 'Adapts to what’s rewarded; performance protects against worthlessness. (Placeholder — refine wording)',
+              4: 'Seeks meaning and identity; intensity protects against feeling insignificant. (Placeholder — refine wording)'
+            }
+          },
+          { id:'head', name:'Thinking (Head)', types:[5,6,7], color:'c',
+            summary:'Concerned with security and guidance; fear/anxiety often drives strategies.',
+            perType: {
+              5: 'Pulls back to preserve resources and reduce overwhelm. (Placeholder — refine wording)',
+              6: 'Scans for risk and support; tries to establish certainty. (Placeholder — refine wording)',
+              7: 'Stays future-oriented to avoid pain; keeps options open. (Placeholder — refine wording)'
+            }
+          },
+        ]
+      },
+      hornevian: {
+        label: 'Hornevian (social style)',
+        groups: [
+          { id:'assertive', name:'Assertive', types:[3,7,8], color:'d',
+            summary:'Moves against pressure by expanding the ego: taking charge, pushing forward, insisting.',
+            perType: {
+              3: 'Pushes toward achievement: “I’ll perform and win the goal.” (Placeholder — refine wording)',
+              7: 'Pushes toward options: “I’ll stay free and keep it positive.” (Placeholder — refine wording)',
+              8: 'Pushes toward control: “I’ll handle it directly.” (Placeholder — refine wording)'
+            }
+          },
+          { id:'compliant', name:'Compliant / Dutiful', types:[1,2,6], color:'e',
+            summary:'Moves toward what feels required: duty, rightness, earning belonging/support.',
+            perType: {
+              1: 'Earns autonomy by being correct/responsible. (Placeholder — refine wording)',
+              2: 'Earns closeness by helping and being needed. (Placeholder — refine wording)',
+              6: 'Earns security by doing what’s expected / covering bases. (Placeholder — refine wording)'
+            }
+          },
+          { id:'withdrawn', name:'Withdrawn', types:[4,5,9], color:'f',
+            summary:'Moves away to regulate: retreats inward, conserves energy, keeps distance from demands.',
+            perType: {
+              4: 'Withdraws into feeling/meaning: “I need space to feel and understand.” (Placeholder — refine wording)',
+              5: 'Withdraws into thinking: “I need space to think and prepare.” (Placeholder — refine wording)',
+              9: 'Withdraws into comfort: “I’ll keep things calm; I don’t want escalation.” (Placeholder — refine wording)'
+            }
+          }
+        ]
+      },
+      harmonic: {
+        label: 'Harmonic (coping with conflict)',
+        groups: [
+          { id:'positive', name:'Positive outlook', types:[2,7,9], color:'b',
+            summary:'Copes by reframing or emphasising the positive; can have difficulty staying with pain and conflict.',
+            perType: {
+              2: 'Keeps connection by focusing on helping and goodwill. (Placeholder — refine wording)',
+              7: 'Keeps mood up by scanning for what could be enjoyable or possible. (Placeholder — refine wording)',
+              9: 'Keeps peace by smoothing tension and minimising disturbance. (Placeholder — refine wording)'
+            }
+          },
+          { id:'competency', name:'Competency', types:[1,3,5], color:'a',
+            summary:'Copes by getting competent and objective; feelings may be put aside to solve the problem.',
+            perType: {
+              1: 'Solves by standards: “Let’s do it the right way.” (Placeholder — refine wording)',
+              3: 'Solves by efficiency: “Let’s execute and deliver.” (Placeholder — refine wording)',
+              5: 'Solves by analysis: “Let me understand the hidden issues.” (Placeholder — refine wording)'
+            }
+          },
+          { id:'reactive', name:'Reactive', types:[4,6,8], color:'c',
+            summary:'Copes by responding strongly and needing engagement; wants a real response before moving on.',
+            perType: {
+              4: 'Needs emotional resonance: “Do you understand what this means and how it feels?” (Draft — review)',
+              6: 'Needs reassurance and clarity: “Is this safe, and what’s the plan?” (Draft — review)',
+              8: 'Needs truth and traction: “What’s actually happening, and what are we going to do?” (Draft — review)'
+            }
+          },
+        ]
+      }
+    };
+
+    const COMPARE_PROMPTS = [
+      { id:'coreMotivation', label:'Core motivation', stem:'Core motivation:' },
+      { id:'coreFear', label:'Core fear', stem:'Core fear:' },
+      { id:'coreDesire', label:'Core desire', stem:'Core desire:' },
+      { id:'childhoodMessage', label:'Childhood message', stem:'Childhood message:' },
+      { id:'wakeUpCall', label:'Wake-up call', stem:'Wake-up call:' },
+      { id:'warningSign', label:'Warning sign', stem:'Warning sign:' },
+      { id:'linesGrowth', label:'Growth line (integration)', stem:'Growth line:' },
+      { id:'linesStress', label:'Stress line (disintegration)', stem:'Stress line:' },
+      { id:'groups', label:'Groups (triads)', stem:'Group:' },
+    ];
+
+    // --- UI state ---
+    let macro = 'compare';
+    let comparePrompt = 'coreMotivation';
+    let compareSub = 'harmonic';
+    let hoveredGroup = null; // {systemKey, groupId}
+    let activeType = null;
+    let activeTab = 'overview';
+
+    // --- DOM ---
+    const macroSeg = document.getElementById('macroSeg');
+    const compareSelectWrap = document.getElementById('compareSelect');
+    const cmpPromptSel = document.getElementById('cmpPrompt');
+    const cmpSubSel = document.getElementById('cmpSub');
+
+    const stageHint = document.getElementById('stageHint');
+    const resetBtn = document.getElementById('reset');
+
+    // Compare-mode title + hint now live in the card header (outside the diagram sandbox)
+    const cmpTitleTextEl = document.getElementById('cmpTitleText');
+    const cmpHintTextEl = document.getElementById('cmpHintText');
+
+    const nodesG = document.getElementById('nodes');
+    const labelsG = document.getElementById('compareLabels');
+    const leadersG = document.getElementById('labelLeaders');
+    const labelBoxesG = document.getElementById('labelBoxes');
+    const overlayGroupsG = document.getElementById('overlayGroups');
+    const overlayArrowsG = document.getElementById('overlayArrows');
+    const debugLayerG = document.getElementById('debugLayer');
+
+    const tooltip = document.getElementById('tooltip');
+    const ttTitle = document.getElementById('ttTitle');
+    const ttBody = document.getElementById('ttBody');
+
+    const tabsEl = document.getElementById('tabs');
+    const pane = document.getElementById('pane');
+
+    const panelTitle = document.getElementById('panelTitle');
+    const panelLead = document.getElementById('panelLead');
+    const typeEmoji = document.getElementById('typeEmoji');
+
+    const toastEl = document.getElementById('toast');
+
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      window.clearTimeout(toast._t);
+      toast._t = window.setTimeout(() => toastEl.classList.remove('show'), 1600);
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    // --- Prompt UI ---
+    for (const p of COMPARE_PROMPTS) {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.label;
+      cmpPromptSel.appendChild(opt);
+    }
+    cmpPromptSel.value = comparePrompt;
+
+    function refreshSubSelector() {
+      if (comparePrompt !== 'groups') {
+        cmpSubSel.style.display = 'none';
+        return;
+      }
+      cmpSubSel.style.display = 'block';
+      cmpSubSel.innerHTML = '';
+      for (const key of Object.keys(GROUP_SYSTEMS)) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = GROUP_SYSTEMS[key].label;
+        cmpSubSel.appendChild(opt);
+      }
+      cmpSubSel.value = compareSub;
+    }
+
+    cmpPromptSel.addEventListener('change', () => {
+      comparePrompt = cmpPromptSel.value;
+      refreshSubSelector();
+      renderCompareSurface();
+      if (activeType && macro === 'compare') renderComparePanel(activeType);
+    });
+
+    cmpSubSel.addEventListener('change', () => {
+      compareSub = cmpSubSel.value;
+      renderCompareSurface();
+      if (activeType && macro === 'compare') renderComparePanel(activeType);
+    });
+
+    refreshSubSelector();
+
+    // --- SVG nodes with stable scaling ---
+    const nodeRadius = 20;
+
+    function setNodeScale(g, s) {
+      const tx = Number(g.dataset.tx);
+      const ty = Number(g.dataset.ty);
+      g.dataset.scale = String(s);
+      g.setAttribute('transform', `translate(${tx}, ${ty}) scale(${s})`);
+    }
+
+    function setNodeActive(n) {
+      document.querySelectorAll('.node').forEach(el => {
+        const isActive = Number(el.dataset.type) === n;
+        el.classList.toggle('active', isActive);
+        setNodeScale(el, isActive ? 1.06 : 1);
+      });
+    }
+
+    function createNode(n) {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'node');
+      g.setAttribute('tabindex', '0');
+      g.setAttribute('role', 'button');
+      g.setAttribute('aria-label', `Type ${n}`);
+      g.dataset.type = String(n);
+
+      const p = points[n];
+      g.dataset.tx = String(p.x);
+      g.dataset.ty = String(p.y);
+      g.dataset.scale = '1';
+      g.setAttribute('transform', `translate(${p.x}, ${p.y}) scale(1)`);
+
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('r', String(nodeRadius));
+      c.setAttribute('cx', '0');
+      c.setAttribute('cy', '0');
+
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', '0');
+      t.setAttribute('y', '6');
+      t.setAttribute('text-anchor', 'middle');
+      t.textContent = String(n);
+
+      g.appendChild(c);
+      g.appendChild(t);
+
+      g.addEventListener('click', () => selectType(n));
+      g.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectType(n); }
+      });
+
+      g.addEventListener('mousemove', (e) => showTooltip(e, n));
+      g.addEventListener('mouseenter', (e) => {
+        g.classList.add('hover');
+        setNodeScale(g, Math.max(1.10, Number(g.dataset.scale)));
+        showTooltip(e, n);
+
+        // In groups mode, hovering a node also surfaces its group triangle.
+        if (macro === 'compare' && comparePrompt === 'groups') {
+          const sys = GROUP_SYSTEMS[compareSub];
+          const grp = sys.groups.find(x => x.types.includes(n));
+          if (grp) {
+            hoveredGroup = { systemKey: compareSub, groupId: grp.id };
+            renderGroupOverlays();
+          }
+        }
+
+        // In line prompts, show arrows
+        if (macro === 'compare' && (comparePrompt === 'linesGrowth' || comparePrompt === 'linesStress')) {
+          renderLineOverlays(n);
+        }
+      });
+
+      g.addEventListener('mouseleave', () => {
+        g.classList.remove('hover');
+        const keep = (activeType === n) ? 1.06 : 1;
+        setNodeScale(g, keep);
+        hideTooltip();
+
+        if (macro === 'compare' && comparePrompt === 'groups') {
+          hoveredGroup = null;
+          renderGroupOverlays();
+        }
+
+        if (macro === 'compare' && (comparePrompt === 'linesGrowth' || comparePrompt === 'linesStress')) {
+          clearLineOverlays();
+        }
+      });
+
+      return g;
+    }
+
+    order.forEach(n => nodesG.appendChild(createNode(n)));
+
+    // --- Compare value / labels ---
+    function compareValue(t, promptId) {
+      const d = TYPES[t];
+      if (!d) return '';
+      if (promptId === 'linesGrowth') return `${t} → ${d.lines.growth}`;
+      if (promptId === 'linesStress') return `${t} → ${d.lines.stress}`;
+      return d[promptId] || '';
+    }
+
+    function truncateForLabel(s, max=66) {
+      const clean = String(s).trim();
+      if (clean.length <= max) return clean;
+      return clean.slice(0, max - 1).trimEnd() + '…';
+    }
+
+    let DEBUG = false;
+    const BUILD_ID = (document.querySelector('meta[name="build-id"]')?.getAttribute('content')) || 'unknown';
+
+    function toggleDebug() {
+      DEBUG = !DEBUG;
+      const dbgPanel = document.getElementById('debugPanel');
+      if (dbgPanel) dbgPanel.classList.toggle('show', DEBUG);
+      renderDebugOverlay();
+      if (DEBUG && macro === 'compare') { renderCompareSurface(); }
+      toast(DEBUG ? `Debug ON • ${BUILD_ID}` : 'Debug OFF');
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'd' || e.key === 'D') {
+        e.preventDefault();
+        toggleDebug();
+      }
+    });
+
+    function renderDebugOverlay(items=null) {
+      if (!debugLayerG) return;
+      debugLayerG.innerHTML = '';
+      if (!DEBUG) return;
+
+      // Anchor points (blue crosshair + type number label)
+      for (const n of order) {
+        const a = LABEL_ANCHORS[n];
+        if (!a) continue;
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        const l1 = document.createElementNS('http://www.w3.org/2000/svg','line');
+        l1.setAttribute('x1', a.ax-6); l1.setAttribute('y1', a.ay);
+        l1.setAttribute('x2', a.ax+6); l1.setAttribute('y2', a.ay);
+        l1.setAttribute('stroke','rgba(59,130,246,.85)'); l1.setAttribute('stroke-width','1.4');
+        const l2 = document.createElementNS('http://www.w3.org/2000/svg','line');
+        l2.setAttribute('x1', a.ax); l2.setAttribute('y1', a.ay-6);
+        l2.setAttribute('x2', a.ax); l2.setAttribute('y2', a.ay+6);
+        l2.setAttribute('stroke','rgba(59,130,246,.85)'); l2.setAttribute('stroke-width','1.4');
+        const tt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        tt.setAttribute('x', a.ax + 8);
+        tt.setAttribute('y', a.ay - 8);
+        tt.setAttribute('font-size','11');
+        tt.setAttribute('fill','rgba(59,130,246,.92)');
+        tt.setAttribute('font-family','Inter, system-ui, sans-serif');
+        tt.textContent = `${n}`;
+        g.appendChild(l1); g.appendChild(l2); g.appendChild(tt);
+        debugLayerG.appendChild(g);
+      }
+
+      // Final box rects (green outlines)
+      if (items) {
+        for (const it of items) {
+          const rr = document.createElementNS('http://www.w3.org/2000/svg','rect');
+          rr.setAttribute('x', it.rect.x);
+          rr.setAttribute('y', it.rect.y);
+          rr.setAttribute('width', it.rect.w);
+          rr.setAttribute('height', it.rect.h);
+          rr.setAttribute('fill','none');
+          rr.setAttribute('stroke','rgba(16,185,129,.75)');
+          rr.setAttribute('stroke-width','1.2');
+          debugLayerG.appendChild(rr);
+        }
+      }
+
+      // Build ID stamp (bottom-left of diagram coord space)
+      const lab = document.createElementNS('http://www.w3.org/2000/svg','text');
+      lab.setAttribute('x','-200');
+      lab.setAttribute('y','640');
+      lab.setAttribute('font-size','11');
+      lab.setAttribute('fill','rgba(244,63,94,.85)');
+      lab.setAttribute('font-family','Inter, system-ui, sans-serif');
+      lab.textContent = `DEBUG • ${BUILD_ID}`;
+      debugLayerG.appendChild(lab);
+    }
+
+    // Hand-authored label anchors.
+    // ax, ay = exact point where the leader line meets the label box (diagram-local coordinates).
+    // edge   = which side of the box receives the leader; box extends away from the circle.
+    // wrap   = word-wrap character budget for this position (tight positions use fewer chars).
+    // maxW   = upper bound on box width (keeps left/right boxes inside the viewBox, and
+    //          keeps the two bottom labels from colliding with each other).
+    // If you want to retune, just edit these nine numbers — that's the whole layout.
+    const LABEL_ANCHORS = {
+      9: { ax: 300, ay:  50, edge: 'bottom', wrap: 36, maxW: 280 },
+      1: { ax: 525, ay: 130, edge: 'left',   wrap: 32, maxW: 250 },
+      2: { ax: 555, ay: 267, edge: 'left',   wrap: 32, maxW: 250 },
+      3: { ax: 525, ay: 445, edge: 'left',   wrap: 32, maxW: 250 },
+      4: { ax: 430, ay: 545, edge: 'top',    wrap: 24, maxW: 200 },
+      5: { ax: 170, ay: 545, edge: 'top',    wrap: 24, maxW: 200 },
+      6: { ax:  75, ay: 445, edge: 'right',  wrap: 32, maxW: 250 },
+      7: { ax:  45, ay: 267, edge: 'right',  wrap: 32, maxW: 250 },
+      8: { ax:  75, ay: 130, edge: 'right',  wrap: 32, maxW: 250 },
+    };
+
+    function wrapTextIntoLines(text, maxCharsPerLine, maxLines) {
+      // Simple word-wrap by character count. We also cap lines to 2–3 (as per spec).
+      const words = String(text).trim().split(/\s+/).filter(Boolean);
+      const lines = [];
+      let cur = '';
+
+      for (const w of words) {
+        const next = cur ? (cur + ' ' + w) : w;
+        if (next.length <= maxCharsPerLine) {
+          cur = next;
+        } else {
+          if (cur) lines.push(cur);
+          cur = w;
+          if (lines.length === maxLines - 1) break;
+        }
+      }
+      if (lines.length < maxLines && cur) lines.push(cur);
+
+      // If we exceeded words, add ellipsis to last line.
+      const consumedWords = lines.join(' ').split(/\s+/).length;
+      if (consumedWords < words.length) {
+        lines[lines.length - 1] = lines[lines.length - 1].replace(/…?$/, '').trimEnd() + '…';
+      }
+
+      return lines;
+    }
+
+    function renderCompareLabels() {
+      // Render pipeline (hand-authored anchors, no solver):
+      //   1. For each type, read its anchor from LABEL_ANCHORS.
+      //   2. Wrap + measure the text.
+      //   3. Place the box so its attachment edge passes through the anchor point.
+      //   4. Draw a leader line from the node to the anchor point (which sits exactly
+      //      on the chosen edge of the box).
+      if (!labelBoxesG || !leadersG) return;
+      labelBoxesG.innerHTML = '';
+      leadersG.innerHTML = '';
+
+      const padX = 12;
+      const padY = 10;
+      const lineH = 15;
+      const minW = 150;
+      const items = [];
+
+      for (const n of order) {
+        const a = LABEL_ANCHORS[n];
+        if (!a) continue;
+
+        // Pick text
+        let raw;
+        if (comparePrompt === 'groups') {
+          const sys = GROUP_SYSTEMS[compareSub];
+          const grp = sys.groups.find(x => x.types.includes(n));
+          raw = grp ? grp.name : '';
+        } else {
+          raw = compareValue(n, comparePrompt);
+        }
+
+        const lines = wrapTextIntoLines(raw, a.wrap, 3);
+
+        // Measure the widest line using a throwaway <text> element
+        const tmp = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        tmp.setAttribute('class', 'cmpLabel');
+        lines.forEach((ln, i) => {
+          const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+          ts.textContent = ln;
+          ts.setAttribute('x', '0');
+          ts.setAttribute('dy', i === 0 ? '0' : String(lineH));
+          tmp.appendChild(ts);
+        });
+        labelBoxesG.appendChild(tmp);
+        const widths = Array.from(tmp.querySelectorAll('tspan'))
+          .map(t => Math.ceil(t.getComputedTextLength()));
+        labelBoxesG.removeChild(tmp);
+
+        const textW = Math.max(...widths, 60);
+        const boxW = Math.min(a.maxW, Math.max(minW, textW + padX * 2));
+        const boxH = padY * 2 + (lines.length - 1) * lineH + 14;
+
+        // Place box so the chosen edge passes through (ax, ay).
+        let x, y;
+        switch (a.edge) {
+          case 'left':   x = a.ax;            y = a.ay - boxH / 2; break;
+          case 'right':  x = a.ax - boxW;     y = a.ay - boxH / 2; break;
+          case 'top':    x = a.ax - boxW / 2; y = a.ay;            break;
+          case 'bottom': x = a.ax - boxW / 2; y = a.ay - boxH;     break;
+          default:       x = a.ax - boxW / 2; y = a.ay - boxH / 2;
+        }
+
+        const rect = { x, y, w: boxW, h: boxH };
+        items.push({ n, lines, rect });
+
+        // Leader: node → anchor point (which lies exactly on the box's chosen edge)
+        const nodeP = points[n];
+        const leader = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        leader.setAttribute('d',
+          `M ${nodeP.x.toFixed(2)} ${nodeP.y.toFixed(2)} L ${a.ax.toFixed(2)} ${a.ay.toFixed(2)}`);
+        leader.setAttribute('stroke', 'rgba(30,41,59,.18)');
+        leader.setAttribute('stroke-width', '1.2');
+        leader.setAttribute('fill', 'none');
+        leadersG.appendChild(leader);
+
+        // Background rect
+        const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bg.setAttribute('class', 'cmpLabelBg');
+        bg.setAttribute('x', x);
+        bg.setAttribute('y', y);
+        bg.setAttribute('width', boxW);
+        bg.setAttribute('height', boxH);
+        labelBoxesG.appendChild(bg);
+
+        // Text
+        const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        textEl.setAttribute('class', 'cmpLabel');
+        textEl.setAttribute('x', x + padX);
+        textEl.setAttribute('y', y + padY + 14);
+        lines.forEach((ln, idx) => {
+          const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+          ts.textContent = ln;
+          ts.setAttribute('x', x + padX);
+          ts.setAttribute('dy', idx === 0 ? '0' : String(lineH));
+          textEl.appendChild(ts);
+        });
+        labelBoxesG.appendChild(textEl);
+      }
+
+      renderDebugOverlay(items);
+    }
+
+
+    // --- Group overlays ---
+    function renderGroupOverlays() {
+      overlayGroupsG.innerHTML = '';
+      if (macro !== 'compare' || comparePrompt !== 'groups') return;
+
+      const sys = GROUP_SYSTEMS[compareSub];
+
+      // faint outlines for all groups
+      for (const grp of sys.groups) {
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('d', openPath(grp.types.concat([grp.types[0]])));
+        p.setAttribute('class', `triPath ${grp.color}`);
+        p.dataset.groupId = grp.id;
+
+        // Hovering the triangle itself brings it forward
+        p.addEventListener('mouseenter', () => {
+          hoveredGroup = { systemKey: compareSub, groupId: grp.id };
+          renderGroupOverlays();
+        });
+        p.addEventListener('mouseleave', () => {
+          hoveredGroup = null;
+          renderGroupOverlays();
+        });
+
+        overlayGroupsG.appendChild(p);
+      }
+
+      // bring hovered forward
+      if (hoveredGroup) {
+        const active = Array.from(overlayGroupsG.querySelectorAll('path')).find(x => x.dataset.groupId === hoveredGroup.groupId);
+        if (active) active.classList.add('on');
+      }
+    }
+
+    // --- Line overlays (growth/stress) ---
+    function clearLineOverlays() {
+      overlayArrowsG.innerHTML = '';
+    }
+
+    function renderLineOverlays(typeId) {
+      overlayArrowsG.innerHTML = '';
+      const d = TYPES[typeId];
+      if (!d) return;
+
+      const isGrowth = (comparePrompt === 'linesGrowth');
+      const target = isGrowth ? d.lines.growth : d.lines.stress;
+
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('class', `arrowPath show ${isGrowth ? 'growth' : 'stress'}`);
+      p.setAttribute('d', openPath([typeId, target]));
+
+      overlayArrowsG.appendChild(p);
+    }
+
+    // --- Tooltip ---
+    function showTooltip(e, t) {
+      const d = TYPES[t];
+      if (!d) return;
+      ttTitle.textContent = `${d.emoji}  ${d.name}`;
+
+      if (macro === 'compare') {
+        const p = COMPARE_PROMPTS.find(x => x.id === comparePrompt);
+        let val = '';
+        if (comparePrompt === 'groups') {
+          const sys = GROUP_SYSTEMS[compareSub];
+          const grp = sys.groups.find(x => x.types.includes(t));
+          if (grp) {
+            val = `${grp.name} — ${grp.summary}`;
+            const why = grp.perType?.[t];
+            if (why) val += `\n\n${why}`;
+          }
+        } else if (comparePrompt === 'linesGrowth') {
+          val = `${t} → ${d.lines.growth}\n\n${d.growthLineExplanation}`;
+        } else if (comparePrompt === 'linesStress') {
+          val = `${t} → ${d.lines.stress}\n\n${d.stressLineExplanation}`;
+        } else {
+          val = d[comparePrompt] || '';
+        }
+
+        ttBody.textContent = `${p.stem} ${val}`;
+      } else {
+        ttBody.textContent = `${d.centre}. Click for tabs.`;
+      }
+
+      tooltip.classList.add('show');
+      tooltip.setAttribute('aria-hidden', 'false');
+
+      const pad = 14;
+      const rect = tooltip.getBoundingClientRect();
+      let x = e.clientX + 14;
+      let y = e.clientY + 14;
+      if (x + rect.width + pad > window.innerWidth) x = e.clientX - rect.width - 14;
+      if (y + rect.height + pad > window.innerHeight) y = e.clientY - rect.height - 14;
+      tooltip.style.left = `${Math.max(pad, x)}px`;
+      tooltip.style.top = `${Math.max(pad, y)}px`;
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove('show');
+      tooltip.setAttribute('aria-hidden', 'true');
+    }
+
+    // --- Panels ---
+    function renderComparePanel(t) {
+      const d = TYPES[t];
+      typeEmoji.textContent = d.emoji;
+      tabsEl.style.display = 'none';
+
+      const p = COMPARE_PROMPTS.find(x => x.id === comparePrompt);
+      panelTitle.textContent = `Compare — ${d.name}`;
+      panelLead.textContent = p.label;
+
+      if (comparePrompt === 'groups') {
+        const sys = GROUP_SYSTEMS[compareSub];
+        const grp = sys.groups.find(x => x.types.includes(t));
+        if (!grp) {
+          pane.innerHTML = `<div class="section"><div class="copy">No group found.</div></div>`;
+          return;
+        }
+        const why = grp.perType?.[t] || '(Placeholder — add per-type rationale)';
+
+        pane.innerHTML = `
+          <div class="section">
+            <h3>${escapeHtml(grp.name)}</h3>
+            <div class="copy">${escapeHtml(grp.summary)}</div>
+          </div>
+          <div class="section">
+            <h3>How this can show up for ${escapeHtml(d.name)}</h3>
+            <div class="copy">${escapeHtml(why)}</div>
+          </div>
+        `;
+        return;
+      }
+
+      let val = '';
+      if (comparePrompt === 'linesGrowth') val = `${t} → ${d.lines.growth}`;
+      else if (comparePrompt === 'linesStress') val = `${t} → ${d.lines.stress}`;
+      else val = d[comparePrompt] || '';
+
+      const extra = (comparePrompt === 'linesGrowth') ? d.growthLineExplanation
+        : (comparePrompt === 'linesStress') ? d.stressLineExplanation
+        : '';
+
+      pane.innerHTML = `
+        <div class="section">
+          <h3>${escapeHtml(p.stem)}</h3>
+          <div class="copy">${escapeHtml(val)}</div>
+        </div>
+        ${extra ? `
+          <div class="section">
+            <h3>What this can look like</h3>
+            <div class="copy">${escapeHtml(extra)}</div>
+          </div>
+        ` : ''}
+        <div class="section">
+          <h3>Context</h3>
+          <div class="copy">
+            <ul>
+              <li><b>Centre:</b> ${escapeHtml(d.centre)}</li>
+              <li><b>Growth line:</b> ${t} → ${d.lines.growth}</li>
+              <li><b>Stress line:</b> ${t} → ${d.lines.stress}</li>
+            </ul>
+            <div class="small">(This section is safe to expand with more nuance later.)</div>
+          </div>
+        </div>
+      `;
+    }
+
+    const TYPE_TABS = [
+      { id:'overview', label:'Overview' },
+      { id:'healthy', label:'Healthy' },
+      { id:'stress', label:'Under stress' },
+      { id:'growth', label:'Growth' },
+      { id:'groups', label:'Groups' },
+      { id:'levels', label:'Levels (structure)' },
+      { id:'instincts', label:'Instincts (structure)' },
+      { id:'wings', label:'Wings (structure)' },
+    ];
+
+    function renderTabs() {
+      tabsEl.innerHTML = '';
+      for (const t of TYPE_TABS) {
+        const b = document.createElement('button');
+        b.className = 'tab' + (t.id === activeTab ? ' active' : '');
+        b.textContent = t.label;
+        b.type = 'button';
+        b.addEventListener('click', () => { activeTab = t.id; renderTypePanel(activeType); });
+        tabsEl.appendChild(b);
+      }
+    }
+
+    function renderTypePanel(t) {
+      const d = TYPES[t];
+      typeEmoji.textContent = d.emoji;
+      panelTitle.textContent = `${d.name}`;
+      panelLead.textContent = `${d.centre} centre`;
+      tabsEl.style.display = 'flex';
+      renderTabs();
+
+      if (activeTab === 'overview') {
+        pane.innerHTML = `
+          <div class="section">
+            <h3>Core drivers</h3>
+            <div class="copy">
+              <ul>
+                <li><b>Core motivation:</b> ${escapeHtml(d.coreMotivation)}</li>
+                <li><b>Core fear:</b> ${escapeHtml(d.coreFear)}</li>
+                <li><b>Core desire:</b> ${escapeHtml(d.coreDesire)}</li>
+                <li><b>Childhood message:</b> ${escapeHtml(d.childhoodMessage)}</li>
+              </ul>
+              <div class="chipRow">
+                <button class="chip" type="button" id="chipGrowth"><b>Growth</b> ${t} → ${d.lines.growth}</button>
+                <button class="chip" type="button" id="chipStress"><b>Stress</b> ${t} → ${d.lines.stress}</button>
+              </div>
+            </div>
+          </div>
+          <div class="section" id="lineDetail" style="display:none;"></div>
+          <div class="section">
+            <h3>Process markers</h3>
+            <div class="copy">
+              <ul>
+                <li><b>Wake-up call:</b> ${escapeHtml(d.wakeUpCall)}</li>
+                <li><b>Warning sign:</b> ${escapeHtml(d.warningSign)}</li>
+              </ul>
+              <div class="small">These are signals to notice earlier, not labels to use on others.</div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('chipGrowth').addEventListener('click', () => {
+          const el = document.getElementById('lineDetail');
+          el.style.display = 'block';
+          el.innerHTML = `
+            <h3>What “moving toward ${d.lines.growth}” can look like</h3>
+            <div class="copy">${escapeHtml(d.growthLineExplanation)}</div>
+          `;
+        });
+
+        document.getElementById('chipStress').addEventListener('click', () => {
+          const el = document.getElementById('lineDetail');
+          el.style.display = 'block';
+          el.innerHTML = `
+            <h3>Under stress: the pull toward ${d.lines.stress}</h3>
+            <div class="copy">${escapeHtml(d.stressLineExplanation)}</div>
+          `;
+        });
+
+        return;
+      }
+
+      if (activeTab === 'healthy') {
+        pane.innerHTML = `
+          <div class="section">
+            <h3>Healthy</h3>
+            <div class="copy">(Placeholder — add composed paragraph + examples for ${escapeHtml(d.name)}.)</div>
+          </div>
+        `;
+        return;
+      }
+
+      if (activeTab === 'stress') {
+        pane.innerHTML = `
+          <div class="section">
+            <h3>Under stress</h3>
+            <div class="copy">(Placeholder — add composed paragraph + examples for ${escapeHtml(d.name)}.)</div>
+          </div>
+          <div class="section">
+            <h3>Stress line</h3>
+            <div class="copy">${escapeHtml(d.stressLineExplanation)}</div>
+          </div>
+        `;
+        return;
+      }
+
+      if (activeTab === 'growth') {
+        pane.innerHTML = `
+          <div class="section">
+            <h3>Growth</h3>
+            <div class="copy">(Placeholder — add composed paragraph + examples for ${escapeHtml(d.name)}.)</div>
+          </div>
+          <div class="section">
+            <h3>Growth line</h3>
+            <div class="copy">${escapeHtml(d.growthLineExplanation)}</div>
+          </div>
+        `;
+        return;
+      }
+
+      if (activeTab === 'groups') {
+        pane.innerHTML = `
+          <div class="section">
+            <h3>Centres / Triads</h3>
+            <div class="copy">(Placeholder — show which centre this type belongs to, plus a short “why it matters” paragraph.)</div>
+          </div>
+          <div class="section">
+            <h3>Hornevian (social style)</h3>
+            <div class="copy">(Placeholder — show assertive/compliant/withdrawn mapping.)</div>
+          </div>
+          <div class="section">
+            <h3>Harmonic (coping with conflict)</h3>
+            <div class="copy">(Placeholder — show positive outlook/competency/reactive mapping.)</div>
+          </div>
+        `;
+        return;
+      }
+
+      if (activeTab === 'levels') {
+        pane.innerHTML = `
+          <div class="section">
+            <h3>Levels of health (structure)</h3>
+            <div class="copy">Healthy (1–3), Average (4–6), Unhealthy (7–9).<br><span class="small">Next step: add a slider and paraphrased descriptions per level.</span></div>
+          </div>
+        `;
+        return;
+      }
+
+      if (activeTab === 'instincts') {
+        pane.innerHTML = `
+          <div class="section">
+            <h3>Instincts (structure)</h3>
+            <div class="copy">Self‑preservation, Social, One‑to‑one (sexual).<br><span class="small">Next step: add what each instinct tends to notice first, plus stacking.</span></div>
+          </div>
+        `;
+        return;
+      }
+
+      if (activeTab === 'wings') {
+        pane.innerHTML = `
+          <div class="section">
+            <h3>Wings (structure)</h3>
+            <div class="copy">Each type has two neighbours that can “flavour” style. (Placeholder — add wing pair descriptions.)</div>
+          </div>
+        `;
+        return;
+      }
+
+      pane.innerHTML = `<div class="section"><div class="copy">Not implemented yet.</div></div>`;
+    }
+
+    // --- Macro switching ---
+    macroSeg.addEventListener('click', (e) => {
+      const btn = e.target?.closest('button[data-macro]');
+      if (!btn) return;
+      setMacro(btn.dataset.macro);
+    });
+
+    function setMacro(next) {
+      macro = next;
+      macroSeg.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.macro === macro));
+
+      if (macro === 'compare') {
+        compareSelectWrap.style.display = 'inline-flex';
+        stageHint.textContent = 'Compare Mode: the selected prompt appears around the diagram.';
+        tabsEl.style.display = 'none';
+        activeTab = 'overview';
+        renderCompareSurface();
+        if (activeType) renderComparePanel(activeType);
+        toast('Compare Mode');
+      } else {
+        compareSelectWrap.style.display = 'none';
+        stageHint.textContent = 'Type Mode: click a type, then explore tabs in the panel.';
+        // Clear the contents of the leader/box groups, but KEEP the groups themselves
+        // — they're referenced by leadersG and labelBoxesG, and wiping their parent
+        // would leave those references pointing to detached nodes.
+        leadersG.innerHTML = '';
+        labelBoxesG.innerHTML = '';
+        debugLayerG.innerHTML = '';
+        overlayGroupsG.innerHTML = '';
+        clearLineOverlays();
+        tabsEl.style.display = 'flex';
+        if (activeType) renderTypePanel(activeType);
+        toast('Type Mode');
+      }
+    }
+
+    // --- Surface rendering ---
+    function renderCompareSurface() {
+      // Update header title/hint (the card header shows the active prompt; the
+      // diagram itself stays clean so the top label has room).
+      const p = COMPARE_PROMPTS.find(x => x.id === comparePrompt);
+      if (cmpTitleTextEl && p) cmpTitleTextEl.textContent = p.label;
+      if (cmpHintTextEl) {
+        cmpHintTextEl.textContent = (comparePrompt === 'groups')
+          ? `System: ${GROUP_SYSTEMS[compareSub].label} — hover a type to preview • click to pin details`
+          : 'Hover a type to preview • click to pin details';
+      }
+
+      renderCompareLabels();
+      renderGroupOverlays();
+      clearLineOverlays();
+    }
+
+    // --- Selection ---
+    function selectType(n) {
+      activeType = n;
+      setNodeActive(n);
+
+      if (macro === 'compare') {
+        renderComparePanel(n);
+        if (comparePrompt === 'linesGrowth' || comparePrompt === 'linesStress') {
+          renderLineOverlays(n);
+        }
+      } else {
+        renderTypePanel(n);
+      }
+    }
+
+    function clearSelection() {
+      activeType = null;
+      setNodeActive(-1);
+      typeEmoji.textContent = '—';
+      pane.innerHTML = '';
+      if (macro === 'compare') {
+        panelTitle.textContent = 'Compare';
+        panelLead.textContent = 'Choose a compare prompt, then click a type to pin the full text here.';
+        tabsEl.style.display = 'none';
+      } else {
+        panelTitle.textContent = 'Type';
+        panelLead.textContent = 'Click a type number to load that type’s profile.';
+        tabsEl.style.display = 'flex';
+      }
+      clearLineOverlays();
+    }
+
+    resetBtn.addEventListener('click', () => {
+      clearSelection();
+      if (macro === 'compare') renderCompareSurface();
+      toast('Reset');
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') return clearSelection();
+      const n = Number(e.key);
+      if (Number.isFinite(n) && n >= 1 && n <= 9) selectType(n);
+    });
+
+    document.getElementById('focus').addEventListener('click', () => {
+      if (!activeType) { toast('Select a type first.'); return; }
+      pane.scrollTop = 0;
+      toast('Focused');
+    });
+
+    // --- Init ---
+    renderCompareSurface();
+    setMacro('compare');
+    selectType(9);
+
+    // Tabs only created when Type Mode is entered.
+    renderTabs();
+  </script>
+</body>
+</html>
