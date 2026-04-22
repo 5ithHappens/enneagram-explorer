@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Enneagram Explorer — Compare + Type (v4)</title>
-  <meta name="build-id" content="v8 · centre card · bigger profile · no chips" />
+  <meta name="build-id" content="v9 · hover fix · compact header" />
   <meta name="color-scheme" content="light" />
   <style>
     :root {
@@ -72,16 +72,14 @@
     .wrap { min-height: 100%; display: grid; grid-template-rows: auto 1fr; position: relative; }
 
     header {
-      padding: 22px clamp(18px, 3.2vw, 40px) 10px;
-      display: grid;
-      gap: 12px;
+      padding: 10px clamp(12px, 2.4vw, 28px) 4px;
     }
 
     .topRow {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 16px;
       flex-wrap: wrap;
     }
 
@@ -90,15 +88,8 @@
       font-family: var(--font-heading);
       font-weight: 650;
       letter-spacing: -0.02em;
-      font-size: clamp(22px, 2.5vw, 32px);
+      font-size: clamp(18px, 2vw, 24px);
       line-height: 1.1;
-    }
-
-    .sub {
-      color: var(--brand-text-subtle);
-      font-size: 13px;
-      line-height: 1.45;
-      max-width: 110ch;
     }
 
     .controls {
@@ -106,7 +97,6 @@
       flex-wrap: wrap;
       gap: 10px;
       align-items: center;
-      justify-content: space-between;
     }
 
     .seg {
@@ -188,7 +178,7 @@
     }
 
     main {
-      padding: 10px clamp(18px, 3.2vw, 40px) 40px;
+      padding: 4px clamp(12px, 2.4vw, 28px) 16px;
     }
 
     .card {
@@ -201,50 +191,33 @@
       position: relative;
     }
 
-    .cardHeader {
-      padding: 14px 16px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      border-bottom: 1px solid var(--stroke-2);
-    }
-
-    .diagTitle {
-      margin-top: 6px;
-      font-family: var(--font-heading);
-      font-weight: 750;
-      letter-spacing: -0.01em;
-      font-size: 16px;
-      color: rgba(30,41,59,.92);
-    }
-
-    .diagHint {
-      margin-top: 2px;
-      font-size: 12px;
-      color: rgba(30,41,59,.55);
-    }
-
-    .hint {
-      color: var(--brand-text-subtle);
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
     .btn {
       appearance: none;
       border: 1px solid var(--stroke);
       background: rgba(255,255,255,.55);
       border-radius: 999px;
-      padding: 8px 10px;
+      padding: 8px 14px;
       font: inherit;
       font-size: 13px;
       color: var(--brand-text);
       cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
     }
+    .btn:hover { background: #fff; border-color: color-mix(in srgb, var(--brand-primary) 35%, var(--stroke)); }
+    .btn-ghost { background: transparent; border-color: transparent; color: var(--brand-text-subtle); }
+    .btn-ghost:hover { background: rgba(255,255,255,.55); border-color: var(--stroke); color: var(--brand-text); }
 
-    .canvas { padding: 12px 10px 16px; }
-    .svgWrap { width: 100%; aspect-ratio: 5 / 3; max-height: 820px; margin: 0 auto; display: grid; place-items: center; }
+    .canvas { padding: 6px 8px 10px; }
+    /* Cap the diagram to the viewport so it never forces scrolling.
+       120px ≈ header + card padding + a little breathing room. */
+    .svgWrap {
+      width: 100%;
+      aspect-ratio: 5 / 3;
+      max-height: calc(100vh - 120px);
+      margin: 0 auto;
+      display: grid;
+      place-items: center;
+    }
     svg { width: 100%; height: 100%; }
 
     .ring { fill: none; stroke: rgba(30,41,59,.25); stroke-width: 2.1; }
@@ -335,11 +308,12 @@
     .arrowPath.stress { stroke: var(--line-stress); }
 
     /* Profile mode: zoom the SVG to just the ring by switching to a square aspect
-       ratio and a sensible max width. The JS swaps the viewBox at the same time. */
+       ratio. Width cap keeps the ring from being absurdly huge on wide monitors;
+       height cap prevents viewport overflow. The JS swaps the viewBox in parallel. */
     body.profile-mode .svgWrap {
       aspect-ratio: 1 / 1;
-      max-width: 640px;
-      max-height: 640px;
+      max-width: 720px;
+      max-height: calc(100vh - 120px);
     }
 
     /* When the drawer is open on a reasonably wide viewport, push the main content
@@ -598,45 +572,30 @@
   <div class="wrap">
     <header>
       <div class="topRow">
-        <div>
-          <h1>Enneagram Explorer</h1>
-          <div class="sub">
-            <b>Overview</b> shows one attribute across all nine types at once.
-            <b>Profile</b> zooms in on a single type and its details.
-          </div>
-        </div>
-      </div>
+        <h1>Enneagram Explorer</h1>
 
-      <div class="controls">
-        <div class="select mode">
-          <label>Mode</label>
-          <div class="seg" id="macroSeg" aria-label="Mode selector">
-            <button type="button" data-macro="compare" class="active">Overview</button>
-            <button type="button" data-macro="type">Profile</button>
+        <div class="controls">
+          <div class="select mode">
+            <label>Mode</label>
+            <div class="seg" id="macroSeg" aria-label="Mode selector">
+              <button type="button" data-macro="compare" class="active">Overview</button>
+              <button type="button" data-macro="type">Profile</button>
+            </div>
           </div>
-        </div>
 
-        <div class="select" id="compareSelect">
-          <label for="cmpPrompt">Show</label>
-          <select id="cmpPrompt"></select>
-          <select id="cmpSub" class="mini" style="display:none;"></select>
+          <div class="select" id="compareSelect">
+            <label for="cmpPrompt">Show</label>
+            <select id="cmpPrompt"></select>
+            <select id="cmpSub" class="mini" style="display:none;"></select>
+          </div>
+
+          <button class="btn btn-ghost" id="reset" type="button">Reset</button>
         </div>
       </div>
     </header>
 
     <main>
       <section class="card" aria-label="Enneagram map">
-        <div class="cardHeader">
-          <div>
-            <div class="hint" id="stageHint">Compare Mode: the selected prompt appears around the diagram.</div>
-            <div class="diagTitle" id="cmpTitleText">Core motivation</div>
-            <div class="diagHint" id="cmpHintText">Hover a type to preview • Click to pin details</div>
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn" id="reset" type="button">Reset</button>
-          </div>
-        </div>
-
         <div class="canvas">
           <div class="svgWrap" style="position:relative;">
             <div class="debugPanel" id="debugPanel">
@@ -1332,10 +1291,25 @@
 
         labelG.addEventListener('mouseenter', () => expandLabel(item));
         labelG.addEventListener('mouseleave', () => collapseLabel(item));
+        // Also bind on the bg rect itself — <g> elements have no intrinsic
+        // geometry in SVG, so their mouseenter/mouseleave can be unreliable
+        // (especially after we reorder the DOM to raise a label on expand).
+        // Binding on bg as well gives us a reliable hit-testable element.
+        bg.addEventListener('mouseenter', () => expandLabel(item));
+        bg.addEventListener('mouseleave', () => collapseLabel(item));
       }
+
+      // Reset any lingering expansion state (we just rebuilt the labels).
+      currentExpanded = null;
 
       renderDebugOverlay(items.map(it => ({ rect: it.truncatedRect })));
     }
+
+    // Tracks which label is currently showing its expanded state so we can
+    // defensively collapse a straggler if another expand fires before its
+    // collapse handler does (browsers occasionally drop a mouseleave during
+    // SVG DOM reorders).
+    let currentExpanded = null;
 
     function measureBox(lines, maxW, padX, padY, lineH, minW) {
       // Measure the widest wrapped line using a throwaway <text> element and
@@ -1410,6 +1384,13 @@
     }
 
     function expandLabel(item) {
+      // Collapse any straggler from a previous hover whose mouseleave we might
+      // have missed (happens occasionally during SVG DOM reorders).
+      if (currentExpanded && currentExpanded !== item) {
+        collapseLabel(currentExpanded);
+      }
+      if (currentExpanded === item) return; // already expanded; nothing to do
+
       // Re-wrap at a looser width with no line cap, then re-measure/re-place the
       // same box. Because the anchor + edge logic is unchanged, the attachment
       // point stays exactly where it was — the box just grows on its free edges.
@@ -1437,6 +1418,7 @@
       labelG.classList.add('expanded');
       // Raise to top (SVG z-order is DOM order)
       labelBoxesG.appendChild(labelG);
+      currentExpanded = item;
     }
 
     function collapseLabel(item) {
@@ -1447,6 +1429,7 @@
       bg.setAttribute('height', truncatedRect.h);
       writeTextLines(textEl, truncatedLines, truncatedRect.x, truncatedRect.y, padX, padY, lineH, truncatedRect.w, truncatedRect.h, align);
       labelG.classList.remove('expanded');
+      if (currentExpanded === item) currentExpanded = null;
     }
 
 
@@ -1869,14 +1852,14 @@
 
       if (macro === 'compare') {
         compareSelectWrap.style.display = 'inline-flex';
-        stageHint.textContent = 'Overview: the selected attribute appears around the diagram for all nine types. Hover a label to see its full text.';
+        if (stageHint) stageHint.textContent = 'Overview: the selected attribute appears around the diagram for all nine types. Hover a label to see its full text.';
         tabsEl.style.display = 'none';
         activeTab = 'overview';
         renderCompareSurface();
         toast('Overview');
       } else {
         compareSelectWrap.style.display = 'none';
-        stageHint.textContent = 'Profile: click a type number to explore its full profile in the side panel.';
+        if (stageHint) stageHint.textContent = 'Profile: click a type number to explore its full profile in the side panel.';
         // Clear the contents of the leader/box groups, but KEEP the groups themselves
         // — they're referenced by leadersG and labelBoxesG, and wiping their parent
         // would leave those references pointing to detached nodes.
