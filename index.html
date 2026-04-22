@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Enneagram Explorer — Compare + Type (v4)</title>
-  <meta name="build-id" content="2026-04-22-hand-authored-anchors-v1" />
+  <meta name="build-id" content="v7 · overview + profile · centre label" />
   <meta name="color-scheme" content="light" />
   <style>
     :root {
@@ -154,6 +154,14 @@
       backdrop-filter: blur(10px);
       min-width: min(560px, 100%);
     }
+    .select.mode { min-width: 0; }
+    .select.mode .seg button { padding: 8px 16px; font-size: 13.5px; font-weight: 550; }
+    .select.mode .seg button.active {
+      background: color-mix(in srgb, var(--brand-primary) 22%, white);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-primary) 55%, transparent);
+      font-weight: 700;
+      color: color-mix(in srgb, var(--brand-primary) 52%, var(--brand-text));
+    }
 
     .select label {
       color: var(--brand-text-subtle);
@@ -267,16 +275,24 @@
     }
 
     /* Compare-mode inline labels */
-    .cmpLabel { font-family: var(--font-body); font-size: 12.5px; line-height: 1.28; fill: rgba(30,41,59,.78); pointer-events: none; }
+    .cmpLabel { font-family: var(--font-body); font-size: 12.5px; line-height: 1.28; fill: rgba(30,41,59,.78); pointer-events: none; transition: font-size .18s ease, fill .18s ease; }
     .cmpLabel tspan.small { fill: rgba(71,85,105,.92); font-size: 11.5px; }
-    .cmpLabelBg { fill: rgba(255,255,255,.72); stroke: rgba(30,41,59,.10); stroke-width: 1; rx: 10; ry: 10; cursor: default; transition: fill .18s ease, stroke .18s ease; }
-    .cmpLabelGroup.expanded .cmpLabelBg { fill: #ffffff; stroke: rgba(30,41,59,.22); filter: drop-shadow(0 14px 30px rgba(30,41,59,.18)); }
-    .cmpLabelGroup.expanded .cmpLabel { fill: var(--brand-text); }
-    /* (removed clip-path approach; we size the label box to text instead) */
+    .cmpLabelBg { fill: rgba(255,255,255,.78); stroke: rgba(30,41,59,.10); stroke-width: 1; rx: 10; ry: 10; cursor: default; transition: fill .18s ease, stroke .18s ease; }
+    .cmpLabelGroup { transition: filter .22s ease; }
+    .cmpLabelGroup:hover { filter: drop-shadow(0 12px 24px rgba(30,41,59,.14)); }
+    .cmpLabelGroup.expanded .cmpLabelBg { fill: #ffffff; stroke: rgba(30,41,59,.26); filter: drop-shadow(0 22px 44px rgba(30,41,59,.24)); }
+    .cmpLabelGroup.expanded .cmpLabel { fill: var(--brand-text); font-size: 13.5px; }
+
+    /* Centre label — shows active prompt (Overview mode) or CTA/type (Profile mode) */
+    .centreLabel { font-family: var(--font-heading); text-anchor: middle; fill: rgba(30,41,59,.78); pointer-events: none; }
+    .centreLabel .primary { font-weight: 700; font-size: 26px; letter-spacing: -0.01em; }
+    .centreLabel .primary.small { font-size: 20px; }
+    .centreLabel .secondary { font-size: 13px; fill: rgba(71,85,105,.85); font-weight: 500; }
+    .centreLabel .emoji { font-size: 42px; }
 
     /* Overlay triangles */
-    .triPath { fill: none; stroke: rgba(30,41,59,.14); stroke-width: 2; opacity: .35; }
-    .triPath.on { opacity: .92; stroke-width: 3.2; filter: drop-shadow(0 14px 18px rgba(30,41,59,.10)); }
+    .triPath { fill: none; stroke: rgba(30,41,59,.14); stroke-width: 2; opacity: .35; transition: opacity .18s ease, stroke-width .18s ease, fill .18s ease; cursor: pointer; }
+    .triPath.on { opacity: .95; stroke-width: 3.4; filter: drop-shadow(0 14px 20px rgba(30,41,59,.12)); }
 
     .triPath.a { stroke: var(--ol-a); }
     .triPath.b { stroke: var(--ol-b); }
@@ -285,11 +301,73 @@
     .triPath.e { stroke: var(--ol-e); }
     .triPath.f { stroke: var(--ol-f); }
 
+    /* Filled triangles when highlighted */
+    .triPath.a.on { fill: color-mix(in srgb, var(--ol-a) 60%, transparent); }
+    .triPath.b.on { fill: color-mix(in srgb, var(--ol-b) 60%, transparent); }
+    .triPath.c.on { fill: color-mix(in srgb, var(--ol-c) 60%, transparent); }
+    .triPath.d.on { fill: color-mix(in srgb, var(--ol-d) 60%, transparent); }
+    .triPath.e.on { fill: color-mix(in srgb, var(--ol-e) 60%, transparent); }
+    .triPath.f.on { fill: color-mix(in srgb, var(--ol-f) 60%, transparent); }
+
+    /* Triad mode: per-group colour wash on the type nodes */
+    .node.triad-a circle { fill: color-mix(in srgb, var(--ol-a) 50%, white); }
+    .node.triad-b circle { fill: color-mix(in srgb, var(--ol-b) 50%, white); }
+    .node.triad-c circle { fill: color-mix(in srgb, var(--ol-c) 50%, white); }
+    .node.triad-d circle { fill: color-mix(in srgb, var(--ol-d) 50%, white); }
+    .node.triad-e circle { fill: color-mix(in srgb, var(--ol-e) 50%, white); }
+    .node.triad-f circle { fill: color-mix(in srgb, var(--ol-f) 50%, white); }
+    .node.triad-on.triad-a circle { fill: color-mix(in srgb, var(--ol-a) 90%, white); stroke: color-mix(in srgb, var(--ol-a) 85%, rgba(30,41,59,.4)); }
+    .node.triad-on.triad-b circle { fill: color-mix(in srgb, var(--ol-b) 90%, white); stroke: color-mix(in srgb, var(--ol-b) 85%, rgba(30,41,59,.4)); }
+    .node.triad-on.triad-c circle { fill: color-mix(in srgb, var(--ol-c) 90%, white); stroke: color-mix(in srgb, var(--ol-c) 85%, rgba(30,41,59,.4)); }
+    .node.triad-on.triad-d circle { fill: color-mix(in srgb, var(--ol-d) 90%, white); stroke: color-mix(in srgb, var(--ol-d) 85%, rgba(30,41,59,.4)); }
+    .node.triad-on.triad-e circle { fill: color-mix(in srgb, var(--ol-e) 90%, white); stroke: color-mix(in srgb, var(--ol-e) 85%, rgba(30,41,59,.4)); }
+    .node.triad-on.triad-f circle { fill: color-mix(in srgb, var(--ol-f) 90%, white); stroke: color-mix(in srgb, var(--ol-f) 85%, rgba(30,41,59,.4)); }
+
     /* Line highlight overlays */
     .arrowPath { fill: none; stroke-width: 5.5; opacity: 0; stroke-linecap: round; stroke-linejoin: round; }
     .arrowPath.show { opacity: 1; filter: drop-shadow(0 10px 18px rgba(0,0,0,.08)); }
     .arrowPath.growth { stroke: var(--line-growth); }
     .arrowPath.stress { stroke: var(--line-stress); }
+
+    /* Type chips (shown in Profile mode; clickable shortcuts for the 9 types) */
+    .typeChips {
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      padding: 12px 12px 4px;
+    }
+    .typeChips.show { display: flex; }
+    .typeChip {
+      appearance: none;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.75);
+      border-radius: 999px;
+      padding: 8px 14px 8px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font: inherit;
+      font-size: 13px;
+      color: var(--brand-text);
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    }
+    .typeChip .chipNum { font-weight: 700; color: var(--brand-text); }
+    .typeChip:hover { background: #fff; border-color: color-mix(in srgb, var(--brand-primary) 48%, var(--stroke)); transform: translateY(-1px); }
+    .typeChip.active { background: color-mix(in srgb, var(--brand-primary) 14%, white); border-color: color-mix(in srgb, var(--brand-primary) 60%, var(--stroke)); font-weight: 650; }
+
+    /* Profile mode: tighten the diagram so it doesn't dominate the screen when a type
+       hasn't been chosen yet. The svgWrap grows to its intrinsic aspect ratio normally;
+       in Profile mode we cap it shorter. */
+    body.profile-mode .svgWrap { max-height: 520px; }
+
+    /* When the drawer is open on a reasonably wide viewport, push the main content
+       over to the left so the diagram and drawer don't overlap. */
+    .wrap { transition: padding-right .28s cubic-bezier(.2,.7,.2,1); }
+    @media (min-width: 860px) {
+      .wrap.drawer-open { padding-right: min(460px, 92vw); }
+    }
 
     aside.drawer {
       position: fixed;
@@ -512,33 +590,57 @@
     .debugPanel .v{ font-size: 12px; color: rgba(30,41,59,.92); font-weight: 650; }
     .debugPanel input[type="range"]{ width: 100%; margin-top: 8px; }
 
+    /* Small version badge in the top-right so it's easy to tell at a glance
+       which version of the file is loaded (useful when troubleshooting caching). */
+    .versionBadge {
+      position: fixed;
+      top: 10px;
+      right: 14px;
+      z-index: 200;
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: rgba(71, 85, 105, 0.85);
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      padding: 3px 10px;
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+      user-select: none;
+    }
+
   </style>
 </head>
 <body>
+  <div class="versionBadge" id="versionBadge">v6</div>
   <div class="wrap">
     <header>
       <div class="topRow">
         <div>
           <h1>Enneagram Explorer</h1>
           <div class="sub">
-            Macro modes: <b>Compare</b> (one prompt across all 9) and <b>Type</b> (one type explored in tabs).<br>
-            Copy in this build is a mix of real paraphrased text + <i>(Placeholder — refine wording)</i> flags.
+            <b>Overview</b> shows one attribute across all nine types at once.
+            <b>Profile</b> zooms in on a single type and its details.
           </div>
-        </div>
-        <div class="seg" id="macroSeg" aria-label="Macro mode selector">
-          <button type="button" data-macro="compare" class="active">Compare</button>
-          <button type="button" data-macro="type">Type</button>
         </div>
       </div>
 
       <div class="controls">
+        <div class="select mode">
+          <label>Mode</label>
+          <div class="seg" id="macroSeg" aria-label="Mode selector">
+            <button type="button" data-macro="compare" class="active">Overview</button>
+            <button type="button" data-macro="type">Profile</button>
+          </div>
+        </div>
+
         <div class="select" id="compareSelect">
-          <label for="cmpPrompt">Compare prompt</label>
+          <label for="cmpPrompt">Show</label>
           <select id="cmpPrompt"></select>
           <select id="cmpSub" class="mini" style="display:none;"></select>
         </div>
-
-        
       </div>
     </header>
 
@@ -577,9 +679,13 @@
                   <g id="labelLeaders"></g>
                   <g id="labelBoxes"></g>
                 </g>
+
+                <!-- Centre label (active prompt in Overview mode; call-to-action or active type in Profile mode) -->
+                <g id="centreLabel" aria-hidden="true"></g>
               </g>
             </svg>
           </div>
+          <div class="typeChips" id="typeChips" aria-label="Type shortcuts"></div>
         </div>
       </section>
     </main>
@@ -1006,7 +1112,7 @@
           const grp = sys.groups.find(x => x.types.includes(n));
           if (grp) {
             hoveredGroup = { systemKey: compareSub, groupId: grp.id };
-            renderGroupOverlays();
+            highlightGroup(hoveredGroup);
           }
         }
 
@@ -1024,7 +1130,7 @@
 
         if (macro === 'compare' && comparePrompt === 'groups') {
           hoveredGroup = null;
-          renderGroupOverlays();
+          highlightGroup(pinnedGroup);
         }
 
         if (macro === 'compare' && (comparePrompt === 'linesGrowth' || comparePrompt === 'linesStress')) {
@@ -1054,6 +1160,9 @@
 
     let DEBUG = false;
     const BUILD_ID = (document.querySelector('meta[name="build-id"]')?.getAttribute('content')) || 'unknown';
+    // Mirror build id into the visible version badge.
+    const versionBadgeEl = document.getElementById('versionBadge');
+    if (versionBadgeEl) versionBadgeEl.textContent = BUILD_ID;
 
     function toggleDebug() {
       DEBUG = !DEBUG;
@@ -1222,16 +1331,18 @@
         bg.setAttribute('height', boxH);
         labelG.appendChild(bg);
 
+        const align = (comparePrompt === 'groups') ? 'centre' : 'left';
+
         const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         textEl.setAttribute('class', 'cmpLabel');
-        writeTextLines(textEl, lines, x, y, padX, padY, lineH);
+        writeTextLines(textEl, lines, x, y, padX, padY, lineH, boxW, boxH, align);
         labelG.appendChild(textEl);
 
         labelBoxesG.appendChild(labelG);
 
         // Stash everything expandLabel/collapseLabel needs
         const item = {
-          n, raw, anchor: a,
+          n, raw, anchor: a, align,
           truncatedLines: lines,
           truncatedRect: { x, y, w: boxW, h: boxH },
           labelG, bg, textEl,
@@ -1283,11 +1394,32 @@
       return { x, y };
     }
 
-    function writeTextLines(textEl, lines, x, y, padX, padY, lineH) {
+    function writeTextLines(textEl, lines, x, y, padX, padY, lineH, boxW, boxH, align) {
       // Replace any existing tspans with new ones positioned inside a box at (x, y).
+      // align === 'centre' → horizontally + vertically centred in the box;
+      // anything else      → left-aligned, top-padded (original behaviour).
       while (textEl.firstChild) textEl.removeChild(textEl.firstChild);
+
+      if (align === 'centre') {
+        const centreX = x + boxW / 2;
+        const totalH = (lines.length - 1) * lineH;
+        const firstY = y + boxH / 2 - totalH / 2 + 4; // +4 fudge for baseline
+        textEl.setAttribute('x', centreX);
+        textEl.setAttribute('y', firstY);
+        textEl.setAttribute('text-anchor', 'middle');
+        lines.forEach((ln, idx) => {
+          const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+          ts.textContent = ln;
+          ts.setAttribute('x', centreX);
+          ts.setAttribute('dy', idx === 0 ? '0' : String(lineH));
+          textEl.appendChild(ts);
+        });
+        return;
+      }
+
       textEl.setAttribute('x', x + padX);
       textEl.setAttribute('y', y + padY + 14);
+      textEl.removeAttribute('text-anchor');
       lines.forEach((ln, idx) => {
         const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
         ts.textContent = ln;
@@ -1298,23 +1430,29 @@
     }
 
     function expandLabel(item) {
-      // Re-wrap at a looser width, no line cap, and re-measure/re-place the same box.
-      // Because the anchor + edge logic is unchanged, the attachment point stays
-      // exactly where it was — the box just grows on its free edges.
-      const { anchor: a, raw, bg, textEl, labelG, padX, padY, lineH, minW } = item;
+      // Re-wrap at a looser width with no line cap, then re-measure/re-place the
+      // same box. Because the anchor + edge logic is unchanged, the attachment
+      // point stays exactly where it was — the box just grows on its free edges.
+      //
+      // For short labels that don't actually overflow, we enforce a minimum
+      // "growth" delta so hover is always visually noticeable (not just a shadow).
+      const { anchor: a, raw, bg, textEl, labelG, truncatedRect, padX, padY, lineH, minW, align } = item;
 
       // Looser wrap: use ~1.35× the original budget, no max-lines cap.
       const fullLines = wrapTextIntoLines(raw, Math.round(a.wrap * 1.35), 99);
-      // Allow the expanded box to grow wider than maxW (but not so wide it leaves the SVG).
       const expandedMaxW = Math.min(a.maxW + 120, 380);
-      const { boxW, boxH } = measureBox(fullLines, expandedMaxW, padX, padY, lineH, minW);
-      const { x, y } = placeBox(a, boxW, boxH);
+      let { boxW, boxH } = measureBox(fullLines, expandedMaxW, padX, padY, lineH, minW);
 
+      // Ensure a minimum visible growth even if text is short enough not to need more room.
+      boxW = Math.max(boxW, truncatedRect.w + 18);
+      boxH = Math.max(boxH, truncatedRect.h + 10);
+
+      const { x, y } = placeBox(a, boxW, boxH);
       bg.setAttribute('x', x);
       bg.setAttribute('y', y);
       bg.setAttribute('width', boxW);
       bg.setAttribute('height', boxH);
-      writeTextLines(textEl, fullLines, x, y, padX, padY, lineH);
+      writeTextLines(textEl, fullLines, x, y, padX, padY, lineH, boxW, boxH, align);
 
       labelG.classList.add('expanded');
       // Raise to top (SVG z-order is DOM order)
@@ -1322,48 +1460,100 @@
     }
 
     function collapseLabel(item) {
-      const { bg, textEl, labelG, truncatedLines, truncatedRect, padX, padY, lineH } = item;
+      const { bg, textEl, labelG, truncatedLines, truncatedRect, padX, padY, lineH, align } = item;
       bg.setAttribute('x', truncatedRect.x);
       bg.setAttribute('y', truncatedRect.y);
       bg.setAttribute('width', truncatedRect.w);
       bg.setAttribute('height', truncatedRect.h);
-      writeTextLines(textEl, truncatedLines, truncatedRect.x, truncatedRect.y, padX, padY, lineH);
+      writeTextLines(textEl, truncatedLines, truncatedRect.x, truncatedRect.y, padX, padY, lineH, truncatedRect.w, truncatedRect.h, align);
       labelG.classList.remove('expanded');
     }
 
 
     // --- Group overlays ---
-    function renderGroupOverlays() {
-      overlayGroupsG.innerHTML = '';
+    // Triad state: the always-on colour wash (based on the active groups prompt
+    // + system) lives in `triadMap`, while a pinned highlight lives in
+    // `pinnedGroup` (set by clicking a triangle or node in groups mode).
+    let pinnedGroup = null; // { systemKey, groupId } | null
+
+    function renderTriadNodeColours() {
+      // Paint each node with its group's subtle colour when the groups prompt is
+      // active; strip the colour otherwise so other prompts stay neutral.
+      const nodes = Array.from(document.querySelectorAll('#nodes g.node'));
+      const colourClasses = ['triad-a','triad-b','triad-c','triad-d','triad-e','triad-f'];
+      for (const g of nodes) {
+        g.classList.remove(...colourClasses, 'triad-on');
+      }
       if (macro !== 'compare' || comparePrompt !== 'groups') return;
 
       const sys = GROUP_SYSTEMS[compareSub];
+      for (const grp of sys.groups) {
+        for (const typeId of grp.types) {
+          const node = document.querySelector(`#nodes g.node[data-type="${typeId}"]`);
+          if (node) node.classList.add(`triad-${grp.color}`);
+        }
+      }
+    }
 
-      // faint outlines for all groups
+    function highlightGroup(key) {
+      // key = { systemKey, groupId } or null. Adds .triad-on to the matching nodes
+      // and .on to the matching triangle.
+      const triangles = Array.from(overlayGroupsG.querySelectorAll('path.triPath'));
+      triangles.forEach(t => t.classList.remove('on'));
+      const nodes = Array.from(document.querySelectorAll('#nodes g.node'));
+      nodes.forEach(n => n.classList.remove('triad-on'));
+
+      if (!key) return;
+      const sys = GROUP_SYSTEMS[key.systemKey];
+      const grp = sys && sys.groups.find(g => g.id === key.groupId);
+      if (!grp) return;
+
+      const tri = triangles.find(t => t.dataset.groupId === grp.id);
+      if (tri) tri.classList.add('on');
+      for (const typeId of grp.types) {
+        const node = document.querySelector(`#nodes g.node[data-type="${typeId}"]`);
+        if (node) node.classList.add('triad-on');
+      }
+    }
+
+    function renderGroupOverlays() {
+      overlayGroupsG.innerHTML = '';
+      if (macro !== 'compare' || comparePrompt !== 'groups') {
+        highlightGroup(null);
+        return;
+      }
+
+      const sys = GROUP_SYSTEMS[compareSub];
+
       for (const grp of sys.groups) {
         const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         p.setAttribute('d', openPath(grp.types.concat([grp.types[0]])));
         p.setAttribute('class', `triPath ${grp.color}`);
         p.dataset.groupId = grp.id;
 
-        // Hovering the triangle itself brings it forward
+        // Hover → transient highlight (unless a group is pinned)
         p.addEventListener('mouseenter', () => {
           hoveredGroup = { systemKey: compareSub, groupId: grp.id };
-          renderGroupOverlays();
+          highlightGroup(hoveredGroup);
         });
         p.addEventListener('mouseleave', () => {
           hoveredGroup = null;
-          renderGroupOverlays();
+          highlightGroup(pinnedGroup);
+        });
+        // Click on triangle = pin this group + select its first type's panel
+        p.addEventListener('click', () => {
+          pinnedGroup = { systemKey: compareSub, groupId: grp.id };
+          highlightGroup(pinnedGroup);
+          // Also pin one of the group's types so the drawer has content
+          const firstType = grp.types[0];
+          if (firstType) selectType(firstType);
         });
 
         overlayGroupsG.appendChild(p);
       }
 
-      // bring hovered forward
-      if (hoveredGroup) {
-        const active = Array.from(overlayGroupsG.querySelectorAll('path')).find(x => x.dataset.groupId === hoveredGroup.groupId);
-        if (active) active.classList.add('on');
-      }
+      // Apply whichever highlight is live (hover wins over pin while hovering)
+      highlightGroup(hoveredGroup || pinnedGroup);
     }
 
     // --- Line overlays (growth/stress) ---
@@ -1681,19 +1871,22 @@
     function setMacro(next) {
       macro = next;
       macroSeg.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.macro === macro));
+      document.body.classList.toggle('profile-mode', macro === 'type');
+
+      // Mode switching never auto-opens the drawer — the diagram is the focus.
+      closeDrawer();
 
       if (macro === 'compare') {
         compareSelectWrap.style.display = 'inline-flex';
-        stageHint.textContent = 'Compare Mode: the selected prompt appears around the diagram. Hover a label to see the full text.';
+        stageHint.textContent = 'Overview: the selected attribute appears around the diagram for all nine types. Hover a label to see its full text.';
         tabsEl.style.display = 'none';
         activeTab = 'overview';
         renderCompareSurface();
-        if (activeType) { renderComparePanel(activeType); openDrawer(); }
-        else { closeDrawer(); }
-        toast('Compare Mode');
+        renderTypeChips(); // hides in overview mode
+        toast('Overview');
       } else {
         compareSelectWrap.style.display = 'none';
-        stageHint.textContent = 'Type Mode: click a type, then explore the tabs that slide in from the right.';
+        stageHint.textContent = 'Profile: click a type (in the diagram or the row below) to explore its profile in the side panel.';
         // Clear the contents of the leader/box groups, but KEEP the groups themselves
         // — they're referenced by leadersG and labelBoxesG, and wiping their parent
         // would leave those references pointing to detached nodes.
@@ -1703,9 +1896,9 @@
         overlayGroupsG.innerHTML = '';
         clearLineOverlays();
         tabsEl.style.display = 'flex';
-        if (activeType) { renderTypePanel(activeType); openDrawer(); }
-        else { closeDrawer(); }
-        toast('Type Mode');
+        renderTypeChips();
+        renderCentreLabel();
+        toast('Profile');
       }
     }
 
@@ -1713,26 +1906,99 @@
     const detailDrawer = document.getElementById('detailDrawer');
     const drawerBackdrop = document.getElementById('drawerBackdrop');
     const drawerClose = document.getElementById('drawerClose');
+    const wrapEl = document.querySelector('.wrap');
 
     function openDrawer() {
       detailDrawer.classList.add('open');
       detailDrawer.setAttribute('aria-hidden', 'false');
       drawerBackdrop.classList.add('open');
       drawerBackdrop.setAttribute('aria-hidden', 'false');
+      wrapEl.classList.add('drawer-open');
     }
     function closeDrawer() {
       detailDrawer.classList.remove('open');
       detailDrawer.setAttribute('aria-hidden', 'true');
       drawerBackdrop.classList.remove('open');
       drawerBackdrop.setAttribute('aria-hidden', 'true');
+      wrapEl.classList.remove('drawer-open');
     }
     drawerClose.addEventListener('click', closeDrawer);
     drawerBackdrop.addEventListener('click', closeDrawer);
 
+    // --- Centre label (inside the Enneagram circle) ---
+    // Shows the active prompt in Overview mode, and either a CTA or the active
+    // type's name in Profile mode. This visually reinforces which mode you're in.
+    const centreLabelG = document.getElementById('centreLabel');
+
+    function renderCentreLabel() {
+      if (!centreLabelG) return;
+      centreLabelG.innerHTML = '';
+
+      const ns = 'http://www.w3.org/2000/svg';
+
+      function textLine(y, text, cls) {
+        const t = document.createElementNS(ns, 'text');
+        t.setAttribute('class', `centreLabel ${cls || ''}`.trim());
+        t.setAttribute('x', String(cx));
+        t.setAttribute('y', String(y));
+        t.setAttribute('dominant-baseline', 'middle');
+        t.textContent = text;
+        centreLabelG.appendChild(t);
+        return t;
+      }
+
+      if (macro === 'compare') {
+        const p = COMPARE_PROMPTS.find(x => x.id === comparePrompt);
+        if (!p) return;
+        // Primary: prompt name. For 'groups', also show the active system.
+        const primaryText = p.label;
+        const fitSmall = primaryText.length > 14;
+        // Primary line a little above centre so the (optional) secondary has room.
+        textLine(cy - (comparePrompt === 'groups' ? 12 : 0), primaryText, fitSmall ? 'primary small' : 'primary');
+        if (comparePrompt === 'groups') {
+          textLine(cy + 16, GROUP_SYSTEMS[compareSub].label, 'secondary');
+        }
+        return;
+      }
+
+      // Profile mode
+      if (!activeType) {
+        textLine(cy, 'Click a type', 'primary small');
+        textLine(cy + 22, 'to explore its profile', 'secondary');
+        return;
+      }
+      const d = TYPES[activeType];
+      // Emoji + name stacked
+      const emoji = textLine(cy - 16, d.emoji, 'emoji');
+      emoji.setAttribute('dominant-baseline', 'central');
+      textLine(cy + 24, d.name, 'primary small');
+      textLine(cy + 44, d.centre, 'secondary');
+    }
+
+    // --- Type chip row (Profile mode only) ---
+    const typeChipsEl = document.getElementById('typeChips');
+
+    function renderTypeChips() {
+      if (!typeChipsEl) return;
+      typeChipsEl.innerHTML = '';
+      typeChipsEl.classList.toggle('show', macro === 'type');
+      if (macro !== 'type') return;
+
+      order.forEach(n => {
+        const d = TYPES[n];
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'typeChip' + (activeType === n ? ' active' : '');
+        btn.innerHTML = `<span class="chipNum">${n}</span> <span>${d.emoji}</span> <span>${escapeHtml(d.name)}</span>`;
+        btn.addEventListener('click', () => selectType(n));
+        typeChipsEl.appendChild(btn);
+      });
+    }
+
     // --- Surface rendering ---
     function renderCompareSurface() {
       // Update header title/hint (the card header shows the active prompt; the
-      // diagram itself stays clean so the top label has room).
+      // diagram itself also shows it in the centre for visual reinforcement).
       const p = COMPARE_PROMPTS.find(x => x.id === comparePrompt);
       if (cmpTitleTextEl && p) cmpTitleTextEl.textContent = p.label;
       if (cmpHintTextEl) {
@@ -1743,6 +2009,8 @@
 
       renderCompareLabels();
       renderGroupOverlays();
+      renderTriadNodeColours();
+      renderCentreLabel();
       clearLineOverlays();
     }
 
@@ -1756,26 +2024,41 @@
         if (comparePrompt === 'linesGrowth' || comparePrompt === 'linesStress') {
           renderLineOverlays(n);
         }
+        // In groups mode, clicking a type should pin its group
+        if (comparePrompt === 'groups') {
+          const sys = GROUP_SYSTEMS[compareSub];
+          const grp = sys.groups.find(x => x.types.includes(n));
+          if (grp) {
+            pinnedGroup = { systemKey: compareSub, groupId: grp.id };
+            highlightGroup(pinnedGroup);
+          }
+        }
       } else {
         renderTypePanel(n);
+        renderCentreLabel();
+        renderTypeChips();
       }
       openDrawer();
     }
 
     function clearSelection() {
       activeType = null;
+      pinnedGroup = null;
       setNodeActive(-1);
       typeEmoji.textContent = '—';
       pane.innerHTML = '';
       if (macro === 'compare') {
-        panelTitle.textContent = 'Compare';
-        panelLead.textContent = 'Choose a compare prompt, then click a type to pin the full text here.';
+        panelTitle.textContent = 'Overview';
+        panelLead.textContent = 'Choose an attribute to show, then click a type to pin the full text here.';
         tabsEl.style.display = 'none';
+        if (comparePrompt === 'groups') { renderGroupOverlays(); highlightGroup(null); }
       } else {
-        panelTitle.textContent = 'Type';
+        panelTitle.textContent = 'Profile';
         panelLead.textContent = 'Click a type number to load that type’s profile.';
         tabsEl.style.display = 'flex';
       }
+      renderCentreLabel();
+      renderTypeChips();
       clearLineOverlays();
       closeDrawer();
     }
