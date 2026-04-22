@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Enneagram Explorer — Compare + Type (v4)</title>
-  <meta name="build-id" content="v9 · hover fix · compact header" />
+  <meta name="build-id" content="v10 · sidebar · overflow fix" />
   <meta name="color-scheme" content="light" />
   <style>
     :root {
@@ -69,116 +69,137 @@
       background-size: 420px 420px;
     }
 
-    .wrap { min-height: 100%; display: grid; grid-template-rows: auto 1fr; position: relative; }
-
-    header {
-      padding: 10px clamp(12px, 2.4vw, 28px) 4px;
+    .wrap {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      position: relative;
     }
 
-    .topRow {
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 20px 16px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 20px;
+      border-right: 1px solid var(--stroke-2);
+      background: rgba(255,255,255,.45);
+      overflow-y: auto;
     }
 
-    h1 {
+    .brand h1 {
       margin: 0;
       font-family: var(--font-heading);
       font-weight: 650;
       letter-spacing: -0.02em;
-      font-size: clamp(18px, 2vw, 24px);
-      line-height: 1.1;
+      font-size: 18px;
+      line-height: 1.2;
     }
 
-    .controls {
+    .sidebarControls {
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    .seg {
-      display: inline-flex;
-      gap: 6px;
-      align-items: center;
-      padding: 6px;
-      background: rgba(255,255,255,.58);
+    .sidebarFoot {
+      margin-top: auto;
+      color: var(--brand-text-subtle);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .sidebarFoot kbd {
+      display: inline-block;
+      padding: 1px 6px;
       border: 1px solid var(--stroke);
-      border-radius: 999px;
-      box-shadow: 0 10px 28px rgba(30,41,59,.06);
-      backdrop-filter: blur(10px);
-      flex-wrap: wrap;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 10.5px;
+      font-weight: 600;
+      background: rgba(255,255,255,.7);
     }
 
+    .ctrl {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ctrl > label {
+      color: var(--brand-text-subtle);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .ctrl select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.85);
+      border-radius: 12px;
+      font: inherit;
+      font-size: 14px;
+      color: var(--brand-text);
+    }
+    .ctrl .mini { font-size: 13px; padding: 8px 10px; }
+
+    /* Vertical segmented control (Mode selector in sidebar) */
+    .seg {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 4px;
+      background: rgba(255,255,255,.6);
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+    }
     .seg button {
       appearance: none;
       border: 0;
       background: transparent;
-      border-radius: 999px;
-      padding: 8px 10px;
+      border-radius: 8px;
+      padding: 10px 12px;
       font: inherit;
-      font-size: 13px;
+      font-size: 13.5px;
+      font-weight: 550;
       color: var(--brand-text);
+      text-align: left;
       cursor: pointer;
       transition: background .15s ease;
-      white-space: nowrap;
     }
-
+    .seg button:hover { background: rgba(255,255,255,.7); }
     .seg button.active {
-      background: color-mix(in srgb, var(--brand-primary) 14%, white);
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-primary) 34%, transparent);
-      font-weight: 650;
-    }
-
-    .select {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border: 1px solid var(--stroke);
-      border-radius: 14px;
-      background: rgba(255,255,255,.58);
-      box-shadow: 0 10px 28px rgba(30,41,59,.06);
-      backdrop-filter: blur(10px);
-      min-width: min(560px, 100%);
-    }
-    .select.mode { min-width: 0; }
-    .select.mode .seg button { padding: 8px 16px; font-size: 13.5px; font-weight: 550; }
-    .select.mode .seg button.active {
       background: color-mix(in srgb, var(--brand-primary) 22%, white);
       box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-primary) 55%, transparent);
       font-weight: 700;
       color: color-mix(in srgb, var(--brand-primary) 52%, var(--brand-text));
     }
 
-    .select label {
-      color: var(--brand-text-subtle);
-      font-size: 12px;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .select select {
-      width: 100%;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.78);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font: inherit;
-      font-size: 14px;
-      color: var(--brand-text);
-    }
-
-    .select .mini {
-      width: 220px;
-      max-width: 45vw;
+    /* Stack the sidebar above main on narrow screens */
+    @media (max-width: 720px) {
+      .wrap { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--stroke-2);
+        padding: 12px 14px;
+      }
+      .sidebarControls { flex-direction: row; flex-wrap: wrap; align-items: flex-end; }
+      .seg { flex-direction: row; }
+      .seg button { text-align: center; }
+      .sidebarFoot { display: none; }
     }
 
     main {
-      padding: 4px clamp(12px, 2.4vw, 28px) 16px;
+      padding: 20px clamp(12px, 2.4vw, 28px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: padding-right .28s cubic-bezier(.2,.7,.2,1);
     }
 
     .card {
@@ -209,11 +230,11 @@
 
     .canvas { padding: 6px 8px 10px; }
     /* Cap the diagram to the viewport so it never forces scrolling.
-       120px ≈ header + card padding + a little breathing room. */
+       60px accounts for main's vertical padding + card border/padding. */
     .svgWrap {
       width: 100%;
       aspect-ratio: 5 / 3;
-      max-height: calc(100vh - 120px);
+      max-height: calc(100vh - 60px);
       margin: 0 auto;
       display: grid;
       place-items: center;
@@ -254,7 +275,7 @@
     .cmpLabelGroup { transition: filter .22s ease; }
     .cmpLabelGroup:hover { filter: drop-shadow(0 12px 24px rgba(30,41,59,.14)); }
     .cmpLabelGroup.expanded .cmpLabelBg { fill: #ffffff; stroke: rgba(30,41,59,.26); filter: drop-shadow(0 22px 44px rgba(30,41,59,.24)); }
-    .cmpLabelGroup.expanded .cmpLabel { fill: var(--brand-text); font-size: 13.5px; }
+    .cmpLabelGroup.expanded .cmpLabel { fill: var(--brand-text); }
 
     /* Centre label — rounded card inside the circle.
        Overview mode: "SHOWING" eyebrow + prompt label (large).
@@ -312,15 +333,15 @@
        height cap prevents viewport overflow. The JS swaps the viewBox in parallel. */
     body.profile-mode .svgWrap {
       aspect-ratio: 1 / 1;
-      max-width: 720px;
-      max-height: calc(100vh - 120px);
+      max-width: 760px;
+      max-height: calc(100vh - 60px);
     }
 
-    /* When the drawer is open on a reasonably wide viewport, push the main content
-       over to the left so the diagram and drawer don't overlap. */
-    .wrap { transition: padding-right .28s cubic-bezier(.2,.7,.2,1); }
+    /* When the drawer is open on a reasonably wide viewport, shrink the main
+       area (not the whole grid) so the diagram and drawer don't overlap. The
+       sidebar stays anchored on the left. */
     @media (min-width: 860px) {
-      .wrap.drawer-open { padding-right: min(460px, 92vw); }
+      .wrap.drawer-open main { padding-right: min(460px, 50vw); }
     }
 
     aside.drawer {
@@ -570,29 +591,33 @@
 <body>
   <div class="versionBadge" id="versionBadge">v6</div>
   <div class="wrap">
-    <header>
-      <div class="topRow">
+    <aside class="sidebar">
+      <div class="brand">
         <h1>Enneagram Explorer</h1>
-
-        <div class="controls">
-          <div class="select mode">
-            <label>Mode</label>
-            <div class="seg" id="macroSeg" aria-label="Mode selector">
-              <button type="button" data-macro="compare" class="active">Overview</button>
-              <button type="button" data-macro="type">Profile</button>
-            </div>
-          </div>
-
-          <div class="select" id="compareSelect">
-            <label for="cmpPrompt">Show</label>
-            <select id="cmpPrompt"></select>
-            <select id="cmpSub" class="mini" style="display:none;"></select>
-          </div>
-
-          <button class="btn btn-ghost" id="reset" type="button">Reset</button>
-        </div>
       </div>
-    </header>
+
+      <div class="sidebarControls">
+        <div class="ctrl">
+          <label>Mode</label>
+          <div class="seg" id="macroSeg" aria-label="Mode selector">
+            <button type="button" data-macro="compare" class="active">Overview</button>
+            <button type="button" data-macro="type">Profile</button>
+          </div>
+        </div>
+
+        <div class="ctrl" id="compareSelect">
+          <label for="cmpPrompt">Show</label>
+          <select id="cmpPrompt"></select>
+          <select id="cmpSub" class="mini" style="display:none;"></select>
+        </div>
+
+        <button class="btn btn-ghost" id="reset" type="button">Reset</button>
+      </div>
+
+      <div class="sidebarFoot">
+        Press <kbd>D</kbd> to toggle debug overlay.
+      </div>
+    </aside>
 
     <main>
       <section class="card" aria-label="Enneagram map">
@@ -1311,11 +1336,15 @@
     // SVG DOM reorders).
     let currentExpanded = null;
 
-    function measureBox(lines, maxW, padX, padY, lineH, minW) {
+    function measureBox(lines, maxW, padX, padY, lineH, minW, fontSize) {
       // Measure the widest wrapped line using a throwaway <text> element and
-      // return the box dimensions that fit the text within [minW, maxW].
+      // return the box dimensions that fit the text within [minW, maxW]. If
+      // fontSize is provided, it's applied as an attribute so measurement
+      // matches the exact size the label will eventually render at.
+      const fs = fontSize || 12.5;
       const tmp = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       tmp.setAttribute('class', 'cmpLabel');
+      tmp.setAttribute('font-size', fs + 'px');
       lines.forEach((ln, i) => {
         const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
         ts.textContent = ln;
@@ -1330,7 +1359,8 @@
 
       const textW = Math.max(...widths, 60);
       const boxW = Math.min(maxW, Math.max(minW, textW + padX * 2));
-      const boxH = padY * 2 + (lines.length - 1) * lineH + 14;
+      // First line takes ~fs*1.15 of ascent, subsequent lines add lineH each.
+      const boxH = padY * 2 + Math.round(fs * 1.15) + (lines.length - 1) * lineH;
       return { boxW, boxH };
     }
 
@@ -1348,11 +1378,18 @@
       return { x, y };
     }
 
-    function writeTextLines(textEl, lines, x, y, padX, padY, lineH, boxW, boxH, align) {
+    function writeTextLines(textEl, lines, x, y, padX, padY, lineH, boxW, boxH, align, fontSize) {
       // Replace any existing tspans with new ones positioned inside a box at (x, y).
       // align === 'centre' → horizontally + vertically centred in the box;
       // anything else      → left-aligned, top-padded (original behaviour).
       while (textEl.firstChild) textEl.removeChild(textEl.firstChild);
+
+      // Apply font-size as an attribute so it trumps the CSS rule and matches
+      // what measureBox used when it sized the box. This is the fix for the
+      // hover-expand overflow bug.
+      if (fontSize) textEl.setAttribute('font-size', fontSize + 'px');
+      else textEl.removeAttribute('font-size');
+      const fs = fontSize || 12.5;
 
       if (align === 'centre') {
         const centreX = x + boxW / 2;
@@ -1372,7 +1409,7 @@
       }
 
       textEl.setAttribute('x', x + padX);
-      textEl.setAttribute('y', y + padY + 14);
+      textEl.setAttribute('y', y + padY + Math.round(fs * 1.15));
       textEl.removeAttribute('text-anchor');
       lines.forEach((ln, idx) => {
         const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
@@ -1399,10 +1436,15 @@
       // "growth" delta so hover is always visually noticeable (not just a shadow).
       const { anchor: a, raw, bg, textEl, labelG, truncatedRect, padX, padY, lineH, minW, align } = item;
 
+      // Expanded state uses a slightly larger font. Critically, we measure AND
+      // render at this same size so the box always fits its text.
+      const expandedFontSize = 13.5;
+      const expandedLineH = 16;
+
       // Looser wrap: use ~1.35× the original budget, no max-lines cap.
       const fullLines = wrapTextIntoLines(raw, Math.round(a.wrap * 1.35), 99);
       const expandedMaxW = Math.min(a.maxW + 120, 380);
-      let { boxW, boxH } = measureBox(fullLines, expandedMaxW, padX, padY, lineH, minW);
+      let { boxW, boxH } = measureBox(fullLines, expandedMaxW, padX, padY, expandedLineH, minW, expandedFontSize);
 
       // Ensure a minimum visible growth even if text is short enough not to need more room.
       boxW = Math.max(boxW, truncatedRect.w + 18);
@@ -1413,7 +1455,7 @@
       bg.setAttribute('y', y);
       bg.setAttribute('width', boxW);
       bg.setAttribute('height', boxH);
-      writeTextLines(textEl, fullLines, x, y, padX, padY, lineH, boxW, boxH, align);
+      writeTextLines(textEl, fullLines, x, y, padX, padY, expandedLineH, boxW, boxH, align, expandedFontSize);
 
       labelG.classList.add('expanded');
       // Raise to top (SVG z-order is DOM order)
@@ -1427,7 +1469,9 @@
       bg.setAttribute('y', truncatedRect.y);
       bg.setAttribute('width', truncatedRect.w);
       bg.setAttribute('height', truncatedRect.h);
-      writeTextLines(textEl, truncatedLines, truncatedRect.x, truncatedRect.y, padX, padY, lineH, truncatedRect.w, truncatedRect.h, align);
+      // Explicitly render at the base 12.5px to clear the font-size attribute
+      // that expand would have set.
+      writeTextLines(textEl, truncatedLines, truncatedRect.x, truncatedRect.y, padX, padY, lineH, truncatedRect.w, truncatedRect.h, align, 12.5);
       labelG.classList.remove('expanded');
       if (currentExpanded === item) currentExpanded = null;
     }
@@ -1851,7 +1895,7 @@
       closeDrawer();
 
       if (macro === 'compare') {
-        compareSelectWrap.style.display = 'inline-flex';
+        compareSelectWrap.style.display = 'flex';
         if (stageHint) stageHint.textContent = 'Overview: the selected attribute appears around the diagram for all nine types. Hover a label to see its full text.';
         tabsEl.style.display = 'none';
         activeTab = 'overview';
