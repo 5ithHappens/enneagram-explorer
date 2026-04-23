@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Enneagram Explorer — Compare + Type (v4)</title>
-  <meta name="build-id" content="v11 · diagram fills main" />
+  <meta name="build-id" content="v13 · content split" />
   <meta name="color-scheme" content="light" />
   <style>
     :root {
@@ -589,6 +589,7 @@
     }
 
   </style>
+  <script src="content.js"></script>
 </head>
 <body>
   <div class="versionBadge" id="versionBadge">v6</div>
@@ -711,199 +712,9 @@
     document.getElementById('triangle').setAttribute('d', pathFrom([9,3,6]));
     document.getElementById('hexad').setAttribute('d', pathFrom([1,4,2,8,5,7]));
 
-    // --- Data (paraphrased + placeholders flagged) ---
-    // Note: We are not reproducing book text verbatim.
-    const TYPES = {
-      1: { emoji:'✅', name:'Type 1', centre:'Instinctive (Gut)',
-        coreMotivation:'To live with integrity and to improve what feels out of alignment. (Placeholder — refine wording)',
-        coreFear:'Being bad, corrupt, or defective.',
-        coreDesire:'To be good and in balance; to have integrity.',
-        childhoodMessage:'You are good.',
-        wakeUpCall:'A heavy sense of personal obligation to fix what is wrong.',
-        warningSign:'Fear that their ideals may be wrong or counterproductive.',
-        lines:{stress:4, growth:7},
-        growthLineExplanation:'Moving toward 7 can look like more spontaneity and play, loosening the inner grip without abandoning standards. (Placeholder — refine wording)',
-        stressLineExplanation:'Under pressure, some Ones become moodier and more self-conscious, with a stronger sense of dissatisfaction. (Placeholder — refine wording)'
-      },
-      2: { emoji:'🤝', name:'Type 2', centre:'Feeling (Heart)',
-        coreMotivation:'To earn connection through care—being close, helpful, and needed. (Placeholder — refine wording)',
-        coreFear:'Being unloved or unwanted.',
-        coreDesire:'To feel loved.',
-        childhoodMessage:'You are wanted.',
-        wakeUpCall:'People-pleasing as a way to secure connection.',
-        warningSign:'Fear that they are driving loved ones away.',
-        lines:{stress:8, growth:4},
-        growthLineExplanation:'Moving toward 4 can look like owning personal feelings and needs directly, not just tracking others. (Placeholder — refine wording)',
-        stressLineExplanation:'Under pressure, Twos may become more forceful or controlling about getting needs met. (Placeholder — refine wording)'
-      },
-      3: { emoji:'🏆', name:'Type 3', centre:'Feeling (Heart)',
-        coreMotivation:'To be valuable by achieving, excelling, and embodying what’s rewarded. (Placeholder — refine wording)',
-        coreFear:'Being worthless without achievement.',
-        coreDesire:'To be valuable.',
-        childhoodMessage:'You are loved for yourself.',
-        wakeUpCall:'Equating value with success and performance.',
-        warningSign:'Fear that they are failing and their image is fraudulent.',
-        lines:{stress:9, growth:6},
-        growthLineExplanation:'Moving toward 6 can look like commitment to people and values, not just outcomes—more cooperation, less image-management. (Placeholder — refine wording)',
-        stressLineExplanation:'Under pressure, Threes can disengage and go on autopilot, avoiding what they feel. (Placeholder — refine wording)'
-      },
-      4: { emoji:'🎭', name:'Type 4', centre:'Feeling (Heart)',
-        coreMotivation:'To find meaning and identity—being deeply true to the inner experience. (Placeholder — refine wording)',
-        coreFear:'Having no identity or personal significance.',
-        coreDesire:'To be oneself.',
-        childhoodMessage:'You are seen for who you are.',
-        wakeUpCall:'Using imagination to intensify feelings and longing.',
-        warningSign:'Fear they are wasting their life and opportunities.',
-        lines:{stress:2, growth:1},
-        growthLineExplanation:'Moving toward 1 can look like structure, discernment, and principled action—turning feeling into follow-through. (Placeholder — refine wording)',
-        stressLineExplanation:'Under pressure, Fours can cling for reassurance or become more demanding of closeness. (Placeholder — refine wording)'
-      },
-      5: { emoji:'🔍', name:'Type 5', centre:'Thinking (Head)',
-        coreMotivation:'To preserve inner resources by understanding and keeping enough space. (Placeholder — refine wording)',
-        coreFear:'Being helpless, incapable, or overwhelmed.',
-        coreDesire:'To be competent.',
-        childhoodMessage:'Your needs are not a problem.',
-        wakeUpCall:'Withdrawing from reality into concepts and mental worlds.',
-        warningSign:'Fear they will never find a place in the world with people.',
-        lines:{stress:7, growth:8},
-        growthLineExplanation:'Moving toward 8 can look like decisive engagement and plainspoken action, taking up space in the world. (Placeholder — refine wording)',
-        stressLineExplanation:'Under pressure, Fives can become scattered and overstimulated, chasing options or ideas. (Placeholder — refine wording)'
-      },
-      6: { emoji:'🔒', name:'Type 6', centre:'Thinking (Head)',
-        coreMotivation:'To secure guidance and stability by anticipating risk and building support. (Placeholder — refine wording)',
-        coreFear:'Being without support or guidance.',
-        coreDesire:'To be secure.',
-        childhoodMessage:'You are safe.',
-        wakeUpCall:'Becoming dependent on something outside the self for guidance.',
-        warningSign:'Fear that their own actions have harmed their security.',
-        lines:{stress:3, growth:9},
-        growthLineExplanation:'Moving toward 9 can look like steadiness and calm, trusting the next step without constant scanning. (Placeholder — refine wording)',
-        stressLineExplanation:'Under pressure, Sixes can hustle for approval or certainty, becoming more competitive or image-driven. (Placeholder — refine wording)'
-      },
-      7: { emoji:'🎉', name:'Type 7', centre:'Thinking (Head)',
-        coreMotivation:'To stay free and satisfied by keeping options open and avoiding confinement. (Placeholder — refine wording)',
-        coreFear:'Being deprived or trapped in pain.',
-        coreDesire:'To be happy and satisfied.',
-        childhoodMessage:'You will be taken care of.',
-        wakeUpCall:'A feeling that something better is available elsewhere.',
-        warningSign:'Fear that their pursuits are bringing only pain.',
-        lines:{stress:1, growth:5},
-        growthLineExplanation:'Moving toward 5 can look like depth, focus, and staying with experience long enough to learn from it. (Placeholder — refine wording)',
-        stressLineExplanation:'Under pressure, Sevens can become more critical and perfectionistic, tightening around details. (Placeholder — refine wording)'
-      },
-      8: { emoji:'🦁', name:'Type 8', centre:'Instinctive (Gut)',
-        coreMotivation:'To protect autonomy and ensure strength has impact in the real world. (Placeholder — refine wording)',
-        coreFear:'Being harmed or controlled by others.',
-        coreDesire:'To protect oneself and determine one’s path.',
-        childhoodMessage:'You will not be betrayed.',
-        wakeUpCall:'Pushing and struggling to force things to happen.',
-        warningSign:'Fear others are turning against them and will retaliate.',
-        lines:{stress:5, growth:2},
-        growthLineExplanation:'Moving toward 2 can look like strength expressed as care—warmth without losing boundaries. (Placeholder — refine wording)',
-        stressLineExplanation:'Under pressure, Eights can withdraw and become more guarded and watchful. (Placeholder — refine wording)'
-      },
-      9: { emoji:'☮️', name:'Type 9', centre:'Instinctive (Gut)',
-        coreMotivation:'To keep connection and inner steadiness by reducing conflict and disturbance. (Placeholder — refine wording)',
-        coreFear:'Loss of connection; fragmentation.',
-        coreDesire:'To be at peace.',
-        childhoodMessage:'Your presence matters.',
-        wakeUpCall:'Outwardly accommodating to avoid conflict.',
-        warningSign:'Fear reality will force them to deal with their problems.',
-        lines:{stress:6, growth:3},
-        growthLineExplanation:'Moving toward 3 can look like prioritising, acting, and allowing visibility without losing groundedness. (Placeholder — refine wording)',
-        stressLineExplanation:'Under pressure, Nines can become more anxious and second-guessing, scanning for what could go wrong. (Placeholder — refine wording)'
-      },
-    };
-
-    const GROUP_SYSTEMS = {
-      centres: {
-        label: 'Centres (Gut/Heart/Head)',
-        groups: [
-          { id:'gut', name:'Instinctive (Gut)', types:[8,9,1], color:'a',
-            summary:'Concerned with boundaries and resistance; anger/rage is often the signal emotion.',
-            perType: {
-              8: 'When activated, energy moves outward: protect, push back, take charge. (Placeholder — refine wording)',
-              9: 'When activated, energy can go numb or diffuse: minimise disturbance, keep things steady. (Placeholder — refine wording)',
-              1: 'When activated, energy can tighten inward: hold standards, self-correct, restrain impulses. (Placeholder — refine wording)'
-            }
-          },
-          { id:'heart', name:'Feeling (Heart)', types:[2,3,4], color:'b',
-            summary:'Concerned with self-image and value; shame/self-consciousness often sits underneath.',
-            perType: {
-              2: 'Tracks others to secure closeness; can over-give to earn belonging. (Placeholder — refine wording)',
-              3: 'Adapts to what’s rewarded; performance protects against worthlessness. (Placeholder — refine wording)',
-              4: 'Seeks meaning and identity; intensity protects against feeling insignificant. (Placeholder — refine wording)'
-            }
-          },
-          { id:'head', name:'Thinking (Head)', types:[5,6,7], color:'c',
-            summary:'Concerned with security and guidance; fear/anxiety often drives strategies.',
-            perType: {
-              5: 'Pulls back to preserve resources and reduce overwhelm. (Placeholder — refine wording)',
-              6: 'Scans for risk and support; tries to establish certainty. (Placeholder — refine wording)',
-              7: 'Stays future-oriented to avoid pain; keeps options open. (Placeholder — refine wording)'
-            }
-          },
-        ]
-      },
-      hornevian: {
-        label: 'Hornevian (social style)',
-        groups: [
-          { id:'assertive', name:'Assertive', types:[3,7,8], color:'d',
-            summary:'Moves against pressure by expanding the ego: taking charge, pushing forward, insisting.',
-            perType: {
-              3: 'Pushes toward achievement: “I’ll perform and win the goal.” (Placeholder — refine wording)',
-              7: 'Pushes toward options: “I’ll stay free and keep it positive.” (Placeholder — refine wording)',
-              8: 'Pushes toward control: “I’ll handle it directly.” (Placeholder — refine wording)'
-            }
-          },
-          { id:'compliant', name:'Compliant / Dutiful', types:[1,2,6], color:'e',
-            summary:'Moves toward what feels required: duty, rightness, earning belonging/support.',
-            perType: {
-              1: 'Earns autonomy by being correct/responsible. (Placeholder — refine wording)',
-              2: 'Earns closeness by helping and being needed. (Placeholder — refine wording)',
-              6: 'Earns security by doing what’s expected / covering bases. (Placeholder — refine wording)'
-            }
-          },
-          { id:'withdrawn', name:'Withdrawn', types:[4,5,9], color:'f',
-            summary:'Moves away to regulate: retreats inward, conserves energy, keeps distance from demands.',
-            perType: {
-              4: 'Withdraws into feeling/meaning: “I need space to feel and understand.” (Placeholder — refine wording)',
-              5: 'Withdraws into thinking: “I need space to think and prepare.” (Placeholder — refine wording)',
-              9: 'Withdraws into comfort: “I’ll keep things calm; I don’t want escalation.” (Placeholder — refine wording)'
-            }
-          }
-        ]
-      },
-      harmonic: {
-        label: 'Harmonic (coping with conflict)',
-        groups: [
-          { id:'positive', name:'Positive outlook', types:[2,7,9], color:'b',
-            summary:'Copes by reframing or emphasising the positive; can have difficulty staying with pain and conflict.',
-            perType: {
-              2: 'Keeps connection by focusing on helping and goodwill. (Placeholder — refine wording)',
-              7: 'Keeps mood up by scanning for what could be enjoyable or possible. (Placeholder — refine wording)',
-              9: 'Keeps peace by smoothing tension and minimising disturbance. (Placeholder — refine wording)'
-            }
-          },
-          { id:'competency', name:'Competency', types:[1,3,5], color:'a',
-            summary:'Copes by getting competent and objective; feelings may be put aside to solve the problem.',
-            perType: {
-              1: 'Solves by standards: “Let’s do it the right way.” (Placeholder — refine wording)',
-              3: 'Solves by efficiency: “Let’s execute and deliver.” (Placeholder — refine wording)',
-              5: 'Solves by analysis: “Let me understand the hidden issues.” (Placeholder — refine wording)'
-            }
-          },
-          { id:'reactive', name:'Reactive', types:[4,6,8], color:'c',
-            summary:'Copes by responding strongly and needing engagement; wants a real response before moving on.',
-            perType: {
-              4: 'Needs emotional resonance: “Do you understand what this means and how it feels?” (Draft — review)',
-              6: 'Needs reassurance and clarity: “Is this safe, and what’s the plan?” (Draft — review)',
-              8: 'Needs truth and traction: “What’s actually happening, and what are we going to do?” (Draft — review)'
-            }
-          },
-        ]
-      }
-    };
+    // --- Data ---
+    // TYPES and GROUP_SYSTEMS are loaded from content.js (see <script> tag
+    // in <head>). Edit that file to update type descriptions and group copy.
 
     const COMPARE_PROMPTS = [
       { id:'coreMotivation', label:'Core motivation', stem:'Core motivation:' },
