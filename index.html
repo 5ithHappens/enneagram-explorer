@@ -1,10 +1,71 @@
+
+All projects
+Enneagram Explorer
+I want to create an interactive enneagram explorer to help others better understand the enneagram.
+Created by you
+·
+Private
+
+
+
+How can I help you today?
+
+
+Start a task in Cowork
+Your chats
+Activity
+Your chats are private until shared
+Enneagram course tool development
+Last message 6 minutes ago
+Enneagram Explorer content writing
+Last message 15 minutes ago
+Instructions
+Add instructions to tailor Claude’s responses
+
+Files
+16% of project capacity used
+Indexing
+
+content.js
+212 lines
+
+js
+
+
+
+enneagram-explorer-v14-arrows.html
+1,986 lines
+
+html
+
+
+
+enneagram-explorer-v11-diagram-fills.html
+2,141 lines
+
+html
+
+
+
+The wisdom of the enneagram _ the complete guide to -- Don Richard Riso and Russ Hudson -- Illustrated, 11th, 11th Printing, FR, 1999 -- Bantam Books -- 9780553378207 -- b78c6e0ddb3c65476fa5ac2f614c01ba -- Anna’s A.pdf
+17,591 lines
+
+pdf
+
+
+
+enneagram-explorer-v14-arrows.html
+74.71 KB •1,986 lines
+•
+Formatting may be inconsistent from source
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Enneagram Explorer — Compare + Type (v4)</title>
-  <meta name="build-id" content="v13 · content split" />
+  <meta name="build-id" content="v14 · line text + arrows" />
   <meta name="color-scheme" content="light" />
   <style>
     :root {
@@ -631,6 +692,20 @@
               <div class="k" style="margin-top:8px; text-transform:none; letter-spacing:0;">Toggle debug: <b>D</b></div>
             </div>
             <svg viewBox="-220 -60 1200 720" role="img" aria-label="Enneagram diagram" id="diagramSvg">
+              <defs>
+                <!-- Arrowhead markers for stress/growth lines. One per colour
+                     so each line carries the matching tip. Markers use the
+                     strokeWidth unit, which keeps them visually balanced with
+                     the line weight. -->
+                <marker id="arrowGrowth" viewBox="0 0 10 10" refX="8" refY="5"
+                        markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--line-growth)" />
+                </marker>
+                <marker id="arrowStress" viewBox="0 0 10 10" refX="8" refY="5"
+                        markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--line-stress)" />
+                </marker>
+              </defs>
               <g id="diagram" transform="translate(80,0)">
                 <path class="line" id="triangle" />
                 <path class="line" id="hexad" />
@@ -924,8 +999,12 @@
     function compareValue(t, promptId) {
       const d = TYPES[t];
       if (!d) return '';
-      if (promptId === 'linesGrowth') return `${t} → ${d.lines.growth}`;
-      if (promptId === 'linesStress') return `${t} → ${d.lines.stress}`;
+      // Lines prompts: show the short explanation sentence in the label box,
+      // matching the treatment of every other prompt. The short arrow form
+      // (e.g. "1 → 7") is still used in the drawer where the full sentence
+      // already has room to live in the panel copy.
+      if (promptId === 'linesGrowth') return d.growthLineExplanation || '';
+      if (promptId === 'linesStress') return d.stressLineExplanation || '';
       return d[promptId] || '';
     }
 
@@ -1389,9 +1468,25 @@
       const isGrowth = (comparePrompt === 'linesGrowth');
       const target = isGrowth ? d.lines.growth : d.lines.stress;
 
+      // Shorten the line so it stops at the edge of the target node, not its
+      // centre — otherwise the arrowhead disappears behind the target's circle.
+      // We also nudge the start away from the source node for visual balance.
+      const from = points[typeId];
+      const to = points[target];
+      const dx = to.x - from.x, dy = to.y - from.y;
+      const len = Math.hypot(dx, dy);
+      const ux = dx / len, uy = dy / len;
+      const startInset = nodeRadius + 2;  // small gap between source node and line start
+      const endInset   = nodeRadius + 6;  // leave room for the arrowhead itself
+      const x1 = from.x + ux * startInset;
+      const y1 = from.y + uy * startInset;
+      const x2 = to.x   - ux * endInset;
+      const y2 = to.y   - uy * endInset;
+
       const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       p.setAttribute('class', `arrowPath show ${isGrowth ? 'growth' : 'stress'}`);
-      p.setAttribute('d', openPath([typeId, target]));
+      p.setAttribute('d', `M ${x1.toFixed(2)} ${y1.toFixed(2)} L ${x2.toFixed(2)} ${y2.toFixed(2)}`);
+      p.setAttribute('marker-end', isGrowth ? 'url(#arrowGrowth)' : 'url(#arrowStress)');
 
       overlayArrowsG.appendChild(p);
     }
