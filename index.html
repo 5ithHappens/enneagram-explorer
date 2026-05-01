@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Enneagram Explorer — Compare + Type (v4)</title>
-  <meta name="build-id" content="v14 · line text + arrows" />
+  <meta name="build-id" content="v15 · long line copy + clickable labels" />
   <meta name="color-scheme" content="light" />
   <style>
     :root {
@@ -1153,6 +1153,17 @@
         // Binding on bg as well gives us a reliable hit-testable element.
         bg.addEventListener('mouseenter', () => expandLabel(item));
         bg.addEventListener('mouseleave', () => collapseLabel(item));
+
+        // Click anywhere on the label opens the drawer for that type, just
+        // like clicking the node itself. Hover stays as preview, click is
+        // intent to dig in.
+        const onLabelClick = (e) => {
+          e.stopPropagation();
+          selectType(item.n);
+        };
+        labelG.addEventListener('click', onLabelClick);
+        bg.addEventListener('click', onLabelClick);
+        bg.style.cursor = 'pointer';
       }
 
       // Reset any lingering expansion state (we just rebuilt the labels).
@@ -1510,26 +1521,46 @@
         return;
       }
 
-      let val = '';
-      if (comparePrompt === 'linesGrowth') val = `${t} → ${d.lines.growth}`;
-      else if (comparePrompt === 'linesStress') val = `${t} → ${d.lines.stress}`;
-      else val = d[comparePrompt] || '';
+      // Lines prompts get the long-form treatment in the drawer: drop the
+      // short sentence (already visible on the ring label) and lead with the
+      // long paragraph instead. Falls back to the short explanation if the
+      // long copy hasn't been written yet.
+      if (comparePrompt === 'linesGrowth' || comparePrompt === 'linesStress') {
+        const isGrowth = (comparePrompt === 'linesGrowth');
+        const target = isGrowth ? d.lines.growth : d.lines.stress;
+        const longCopy = isGrowth
+          ? (d.growthLineLong || d.growthLineExplanation || '')
+          : (d.stressLineLong || d.stressLineExplanation || '');
+        const heading = isGrowth
+          ? `Growth: Type ${t} → Type ${target}`
+          : `Stress: Type ${t} → Type ${target}`;
 
-      const extra = (comparePrompt === 'linesGrowth') ? d.growthLineExplanation
-        : (comparePrompt === 'linesStress') ? d.stressLineExplanation
-        : '';
+        pane.innerHTML = `
+          <div class="section">
+            <h3>${escapeHtml(heading)}</h3>
+            ${longCopy ? `<div class="copy">${escapeHtml(longCopy)}</div>` : ''}
+          </div>
+          <div class="section">
+            <h3>Context</h3>
+            <div class="copy">
+              <ul>
+                <li><b>Centre:</b> ${escapeHtml(d.centre)}</li>
+                <li><b>Growth line:</b> ${t} → ${d.lines.growth}</li>
+                <li><b>Stress line:</b> ${t} → ${d.lines.stress}</li>
+              </ul>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const val = d[comparePrompt] || '';
 
       pane.innerHTML = `
         <div class="section">
           <h3>${escapeHtml(p.stem)}</h3>
           <div class="copy">${escapeHtml(val)}</div>
         </div>
-        ${extra ? `
-          <div class="section">
-            <h3>What this can look like</h3>
-            <div class="copy">${escapeHtml(extra)}</div>
-          </div>
-        ` : ''}
         <div class="section">
           <h3>Context</h3>
           <div class="copy">
@@ -1538,7 +1569,6 @@
               <li><b>Growth line:</b> ${t} → ${d.lines.growth}</li>
               <li><b>Stress line:</b> ${t} → ${d.lines.stress}</li>
             </ul>
-            <div class="small">(This section is safe to expand with more nuance later.)</div>
           </div>
         </div>
       `;
@@ -1790,7 +1820,7 @@
 
     // --- Centre label (inside the Enneagram circle) ---
     // A rounded card that shows one of:
-    //   - Overview mode: "Showing" eyebrow + large prompt name (+ system, for groups)
+    //   - Overview mode: large prompt name (+ system label, for groups)
     //   - Profile mode, no type selected: big CTA ("Click a type / to explore its profile")
     //   - Profile mode, type selected: emoji + name + centre
     // Drawn BELOW the nodes in DOM order, so node circles always render on top if
@@ -1806,7 +1836,6 @@
       if (macro === 'compare') {
         const p = COMPARE_PROMPTS.find(x => x.id === comparePrompt);
         if (!p) return;
-        lines.push({ text: 'Showing', size: 11, weight: 600, fill: 'rgba(71,85,105,0.78)', tracking: '0.14em', upper: true, gap: 6 });
         // Auto-shrink the primary if it's a very long prompt label
         const primarySize = p.label.length > 22 ? 22 : (p.label.length > 16 ? 26 : 30);
         lines.push({ text: p.label, size: primarySize, weight: 700, fill: 'rgba(30,41,59,0.94)' });
