@@ -154,7 +154,7 @@ const GROUP_SYSTEMS = {
         summary:'Concerned with self-image and value; shame/self-consciousness often sits underneath.',
         perType: {
           2: 'Tracks others to secure closeness; can over-give to earn belonging. (Placeholder — refine wording)',
-          3: 'Adapts to what's rewarded; performance protects against worthlessness. (Placeholder — refine wording)',
+          3: 'Adapts to what\'s rewarded; performance protects against worthlessness. (Placeholder — refine wording)',
           4: 'Seeks meaning and identity; intensity protects against feeling insignificant. (Placeholder — refine wording)'
         }
       },
