@@ -737,8 +737,8 @@
       { id:'childhoodMessage', label:'Childhood message', stem:'Childhood message:' },
       { id:'wakeUpCall', label:'Wake-up call', stem:'Wake-up call:' },
       { id:'warningSign', label:'Warning sign', stem:'Warning sign:' },
-      { id:'linesGrowth', label:'Growth line (integration)', stem:'Growth line:' },
-      { id:'linesStress', label:'Stress line (disintegration)', stem:'Stress line:' },
+      { id:'linesGrowth', label:'Growth line', stem:'Growth line:' },
+      { id:'linesStress', label:'Stress line', stem:'Stress line:' },
       { id:'groups', label:'Groups (triads)', stem:'Group:' },
     ];
 
@@ -1649,7 +1649,7 @@
           el.style.display = 'block';
           el.innerHTML = `
             <h3>Under stress: the pull toward ${d.lines.stress}</h3>
-            <div class="copy">${escapeHtml(d.stressLineExplanation)}</div>
+            <div class="copy">${escapeHtml(d.stressLineLong || d.stressLineExplanation)}</div>
           `;
         });
 
@@ -1674,7 +1674,7 @@
           </div>
           <div class="section">
             <h3>Stress line</h3>
-            <div class="copy">${escapeHtml(d.stressLineExplanation)}</div>
+            <div class="copy">${escapeHtml(d.stressLineLong || d.stressLineExplanation)}</div>
           </div>
         `;
         return;
