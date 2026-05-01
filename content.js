@@ -28,7 +28,10 @@ const TYPES = {
     wakeUpCall:"A creeping suspicion that the very standards they've been holding so rigidly may themselves be wrong, or may be doing more harm than good.",
     lines:{stress:4, growth:7},
     growthLineExplanation:"Moving toward a healthy Seven, Ones loosen the grip, recover some play, and discover that things can still go well when they're not personally holding the line.",
-    stressLineExplanation:"When holding the line and working hard stops producing the order they're reaching for, Ones take on the characteristics of an unhealthy Four, slipping into moodiness and self-consciousness as the tight self-control gives way."
+    stressLineExplanation:"When holding the line and working hard stops producing the order they're reaching for, Ones take on the characteristics of an unhealthy Four, slipping into moodiness and self-consciousness as the tight self-control gives way.",
+    growthLineLong:"The growth move for Ones is learning that goodness doesn't require their constant vigilance. As they integrate toward healthy Seven, the inner critic quiets enough to let in spontaneity, curiosity, and the possibility that things can work out without their managing every detail. It looks like accepting an invitation without first checking what needs to be done at home, laughing at a mistake instead of correcting it, or trying something new without needing to be good at it first. What changes inside is the grip itself. Ones discover that releasing it doesn't cause collapse, and that lightness and integrity can live alongside each other.",
+    // PLACEHOLDER: replace with locked stressLineLong copy when available.
+    stressLineLong:""
   },
   2: { emoji:'🤝', name:'Type 2', centre:'Feeling (Heart)',
     coreMotivation:"To build and keep closeness by being genuinely useful: the person others come to, think of, and rely on.",
@@ -39,7 +42,10 @@ const TYPES = {
     wakeUpCall:"The quiet realisation that the people they've given most to have been pulling away, not closer.",
     lines:{stress:8, growth:4},
     growthLineExplanation:"As Twos integrate toward Four, they turn some of the attention inward, noticing their own feelings and needs as real, not just as things to manage on other people's behalf.",
-    stressLineExplanation:"When the care and helpfulness don't produce the closeness they're hoping for, Twos move toward an unhealthy Eight, becoming blunt and demanding about the appreciation they feel they've earned."
+    stressLineExplanation:"When the care and helpfulness don't produce the closeness they're hoping for, Twos move toward an unhealthy Eight, becoming blunt and demanding about the appreciation they feel they've earned.",
+    growthLineLong:"The growth move for Twos is reclaiming the inner life they've been outsourcing. As they integrate toward healthy Four, they start noticing their own feelings, needs, and creative impulses as things worth attending to in their own right, not just as signals to manage on behalf of others. It looks like admitting they're exhausted instead of insisting they're fine, picking up a creative project they'd set aside because it wasn't for anyone, or letting themselves be sad without redirecting the sadness into helping someone else. What changes is the direction of attention. Twos turn some of it inward, and discover that they have their own inner world worth tending. Tending it, as it turns out, makes them more genuinely available to others, not less.",
+    // PLACEHOLDER: replace with locked stressLineLong copy when available.
+    stressLineLong:""
   },
   3: { emoji:'🏆', name:'Type 3', centre:'Feeling (Heart)',
     coreMotivation:"To succeed at what matters and to be seen doing it, becoming the person worth looking up to.",
@@ -50,7 +56,10 @@ const TYPES = {
     wakeUpCall:"A growing sense that the image they've built isn't really them, and that if people saw behind it, there might not be much there.",
     lines:{stress:9, growth:6},
     growthLineExplanation:"Moving toward a healthy Six, Threes stop performing for the people around them and start committing to them, trading image and solo effort for genuine cooperation and loyalty.",
-    stressLineExplanation:"When achievement stops producing the recognition they need, Threes take on the characteristics of an unhealthy Nine, disengaging into autopilot and going through the motions rather than feeling what's actually happening."
+    stressLineExplanation:"When achievement stops producing the recognition they need, Threes take on the characteristics of an unhealthy Nine, disengaging into autopilot and going through the motions rather than feeling what's actually happening.",
+    growthLineLong:"The growth move for Threes is trading the solo performance for genuine belonging. As they integrate toward healthy Six, they stop running ahead of the people around them and start committing to them, to teams, to relationships, to values that don't pay off in visible success. It looks like crediting colleagues instead of collecting wins, investing in friendships that don't advance anything, or staying loyal to a project that's gone sideways rather than jumping to the next opportunity. What changes is where their sense of value comes from. Threes begin to experience worth as something shared rather than produced, and discover that belonging wasn't the opposite of achievement but the thing it was meant to secure.",
+    // PLACEHOLDER: replace with locked stressLineLong copy when available.
+    stressLineLong:""
   },
   4: { emoji:'🎭', name:'Type 4', centre:'Feeling (Heart)',
     coreMotivation:"To find and live out their own truth, being fully and distinctively themselves rather than a version of anyone else.",
@@ -61,7 +70,10 @@ const TYPES = {
     wakeUpCall:"The dawning fear that they've been waiting for life to begin, and may be letting the real years slip past them.",
     lines:{stress:2, growth:1},
     growthLineExplanation:"As Fours integrate toward One, they bring structure to their inner world, converting feeling into follow-through and showing up for the work even when the mood isn't there.",
-    stressLineExplanation:"When being deeply themselves stops drawing people in, Fours move toward an unhealthy Two, clinging to the people they care about and becoming more demanding of their attention and reassurance."
+    stressLineExplanation:"When being deeply themselves stops drawing people in, Fours move toward an unhealthy Two, clinging to the people they care about and becoming more demanding of their attention and reassurance.",
+    growthLineLong:"The growth move for Fours is turning inner truth into outer action. As they integrate toward healthy One, they bring structure and discipline to the feelings that used to sweep them along, converting mood into follow-through and showing up for the work even when the inspiration isn't there. They also start to accept themselves as they are, without needing to feel uniquely different to feel real. It looks like keeping a commitment on a bad day, editing a creative project until it's actually finished, or doing the unglamorous parts of a craft they love. What changes is the relationship with feeling itself. Fours learn that emotion is useful information rather than a set of instructions, and that steady effort can honour the inner life more faithfully than waiting for the right mood.",
+    // PLACEHOLDER: replace with locked stressLineLong copy when available.
+    stressLineLong:""
   },
   5: { emoji:'🔍', name:'Type 5', centre:'Thinking (Head)',
     coreMotivation:"To understand things deeply and to keep enough of their own resources (time, energy, knowledge) to meet the world on their own terms.",
@@ -72,7 +84,10 @@ const TYPES = {
     wakeUpCall:"The fear that they've been preparing for a life they're never going to step into, and that their place in the world may never arrive.",
     lines:{stress:7, growth:8},
     growthLineExplanation:"Moving toward a healthy Eight, Fives step out of observation into action, engaging the world directly instead of studying it from the side.",
-    stressLineExplanation:"When withdrawing and preparing stops making them feel ready, Fives take on the characteristics of an unhealthy Seven, becoming scattered and restless, jumping between ideas or distractions without landing on any of them."
+    stressLineExplanation:"When withdrawing and preparing stops making them feel ready, Fives take on the characteristics of an unhealthy Seven, becoming scattered and restless, jumping between ideas or distractions without landing on any of them.",
+    growthLineLong:"The growth move for Fives is stepping out from behind the observation deck. As they integrate toward healthy Eight, they move from analysing the world to engaging it directly, taking up space and acting on what they know instead of continuing to prepare. They become more physically present too, showing up in the room rather than hovering at its edges. It looks like speaking first in a meeting instead of waiting to be invited, pushing a project forward rather than researching it further, or asking for what they need without building a case first. What changes is the sense that they already have enough. Fives discover that engagement doesn't deplete them in the way they feared. It grounds them in the world they'd been trying to understand from the side.",
+    // PLACEHOLDER: replace with locked stressLineLong copy when available.
+    stressLineLong:""
   },
   6: { emoji:'🔒', name:'Type 6', centre:'Thinking (Head)',
     coreMotivation:"To feel secure and prepared: to know who and what can be counted on, and to be that for the people who depend on them.",
@@ -83,7 +98,10 @@ const TYPES = {
     wakeUpCall:"The uneasy recognition that their own defensive reactions may be undermining the very security they've been trying to protect.",
     lines:{stress:3, growth:9},
     growthLineExplanation:"As Sixes integrate toward Nine, they find some ground underneath the anxiety, trusting the next step without needing to pre-solve every risk.",
-    stressLineExplanation:"When anticipating every risk still doesn't produce the safety they're after, Sixes move toward an unhealthy Three, hustling for approval and becoming more image-conscious and competitive to shore up their standing."
+    stressLineExplanation:"When anticipating every risk still doesn't produce the safety they're after, Sixes move toward an unhealthy Three, hustling for approval and becoming more image-conscious and competitive to shore up their standing.",
+    growthLineLong:"The growth move for Sixes is finding ground that doesn't require pre-solving. As they integrate toward healthy Nine, the ceaseless scanning settles, and a quieter kind of trust becomes possible, in themselves, in the next step, in the shape of things working out without their vigilance holding everything together. It looks like making a decision without running through every worst case, staying calm in an ambiguous situation instead of reaching for reassurance, or noticing that the thing they were braced for didn't happen. What changes is the foundation underneath the worry. Sixes start to experience steadiness as something already present, not something to be constructed through preparation.",
+    // PLACEHOLDER: replace with locked stressLineLong copy when available.
+    stressLineLong:""
   },
   7: { emoji:'🎉', name:'Type 7', centre:'Thinking (Head)',
     coreMotivation:"To stay engaged with what's interesting, possible, and alive, keeping options open and pain at a useful distance.",
@@ -94,7 +112,10 @@ const TYPES = {
     wakeUpCall:"The unsettling sense that all the things they've been chasing are bringing more disappointment than satisfaction.",
     lines:{stress:1, growth:5},
     growthLineExplanation:"Moving toward a healthy Five, Sevens slow down enough to let experiences actually land, discovering that depth delivers the satisfaction that breadth has been promising.",
-    stressLineExplanation:"When the pursuit of options and possibility stops delivering the satisfaction they're chasing, Sevens take on the characteristics of an unhealthy One, becoming critical and perfectionistic, venting frustration through sharpness and nitpicking."
+    stressLineExplanation:"When the pursuit of options and possibility stops delivering the satisfaction they're chasing, Sevens take on the characteristics of an unhealthy One, becoming critical and perfectionistic, venting frustration through sharpness and nitpicking.",
+    growthLineLong:"The growth move for Sevens is discovering that depth delivers what breadth has been promising. As they integrate toward healthy Five, they slow down enough to let experiences actually land, finding real satisfaction in staying with something rather than scanning for what's next. It looks like finishing a book instead of starting three, going deeper in a conversation that's become uncomfortable, or staying with a feeling they'd normally distract themselves away from. What changes is the pursuit itself. Sevens learn that the satisfaction they've been chasing isn't hiding in the next thing. It's in the thing they already have, if they stay long enough to receive it.",
+    // PLACEHOLDER: replace with locked stressLineLong copy when available.
+    stressLineLong:""
   },
   8: { emoji:'🦁', name:'Type 8', centre:'Instinctive (Gut)',
     coreMotivation:"To stand on their own ground without being pushed around, strong enough that they and the people under their wing are safe.",
@@ -105,7 +126,10 @@ const TYPES = {
     wakeUpCall:"The hard recognition that the very force they've been using to keep things under control has been producing the instability they were trying to prevent.",
     lines:{stress:5, growth:2},
     growthLineExplanation:"As Eights integrate toward Two, the strength softens into warmth: protection expressed as care rather than force, with a willingness to let people in.",
-    stressLineExplanation:"When pushing and taking charge stops keeping them in control, Eights move toward an unhealthy Five, withdrawing into brooding and strategising, going quiet and watchful rather than confronting things head-on."
+    stressLineExplanation:"When pushing and taking charge stops keeping them in control, Eights move toward an unhealthy Five, withdrawing into brooding and strategising, going quiet and watchful rather than confronting things head-on.",
+    growthLineLong:"The growth move for Eights is letting strength soften into care. As they integrate toward healthy Two, the protective force that usually pushes outward turns toward warmth and openness, and they become willing to be affected by the people they love rather than only affecting them. It looks like admitting a vulnerability instead of handling a situation alone, asking how someone is without wanting to fix it, or letting a tender moment land without deflecting through action. What changes is what strength means to them. Eights discover that real power includes the capacity to be moved, and that letting people in doesn't make them weaker. It makes their strength something others can trust.",
+    // PLACEHOLDER: replace with locked stressLineLong copy when available.
+    stressLineLong:""
   },
   9: { emoji:'🕊️', name:'Type 9', centre:'Instinctive (Gut)',
     coreMotivation:"To keep things steady inside and around them, staying connected to the people and world they belong to without friction pulling them apart.",
@@ -116,7 +140,10 @@ const TYPES = {
     wakeUpCall:"The uncomfortable realisation that the things they've been avoiding aren't going away, and may be getting worse because they haven't faced them.",
     lines:{stress:6, growth:3},
     growthLineExplanation:"Moving toward a healthy Three, Nines start showing up for themselves, naming what they want and acting on it rather than going along.",
-    stressLineExplanation:"When accommodating and keeping the peace stops holding things together, Nines take on the characteristics of an unhealthy Six, becoming more anxious and reactive, cycling through worries and pessimism they normally keep at bay."
+    stressLineExplanation:"When accommodating and keeping the peace stops holding things together, Nines take on the characteristics of an unhealthy Six, becoming more anxious and reactive, cycling through worries and pessimism they normally keep at bay.",
+    growthLineLong:"The growth move for Nines is showing up for themselves. As they integrate toward healthy Three, they stop dissolving into others' agendas and start naming what they actually want, acting on their own behalf with energy and focus. It looks like stating an opinion before checking how it lands, finishing something they've been meaning to start, or making a decision and committing to it rather than waiting for clarity to arrive. What changes is the relationship with their own presence. Nines begin to experience themselves as someone with their own stake in what happens, and discover that asserting that stake doesn't cost them the connections they feared it would.",
+    // PLACEHOLDER: replace with locked stressLineLong copy when available.
+    stressLineLong:""
   },
 };
 
