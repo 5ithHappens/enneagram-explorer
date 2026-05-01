@@ -148,6 +148,11 @@ const GROUP_SYSTEMS = {
           8: 'When activated, energy moves outward: protect, push back, take charge. (Placeholder — refine wording)',
           9: 'When activated, energy can go numb or diffuse: minimise disturbance, keep things steady. (Placeholder — refine wording)',
           1: 'When activated, energy can tighten inward: hold standards, self-correct, restrain impulses. (Placeholder — refine wording)'
+        },
+        perTypeLong: {
+          8:'',
+          9:'',
+          1:''
         }
       },
       { id:'heart', name:'Feeling (Heart)', types:[2,3,4], color:'b',
@@ -156,6 +161,11 @@ const GROUP_SYSTEMS = {
           2: 'Tracks others to secure closeness; can over-give to earn belonging. (Placeholder — refine wording)',
           3: 'Adapts to what\'s rewarded; performance protects against worthlessness. (Placeholder — refine wording)',
           4: 'Seeks meaning and identity; intensity protects against feeling insignificant. (Placeholder — refine wording)'
+        },
+        perTypeLong: {
+          2:'',
+          3:'',
+          4:''
         }
       },
       { id:'head', name:'Thinking (Head)', types:[5,6,7], color:'c',
@@ -164,6 +174,11 @@ const GROUP_SYSTEMS = {
           5: 'Pulls back to preserve resources and reduce overwhelm. (Placeholder — refine wording)',
           6: 'Scans for risk and support; tries to establish certainty. (Placeholder — refine wording)',
           7: 'Stays future-oriented to avoid pain; keeps options open. (Placeholder — refine wording)'
+        },
+        perTypeLong: {
+          5:'',
+          6:'',
+          7:''
         }
       },
     ]
@@ -177,6 +192,11 @@ const GROUP_SYSTEMS = {
           3: 'Pushes toward achievement: "I\'ll perform and win the goal." (Placeholder — refine wording)',
           7: 'Pushes toward options: "I\'ll stay free and keep it positive." (Placeholder — refine wording)',
           8: 'Pushes toward control: "I\'ll handle it directly." (Placeholder — refine wording)'
+        },
+        perTypeLong: {
+          3:'',
+          7:'',
+          8:''
         }
       },
       { id:'compliant', name:'Compliant / Dutiful', types:[1,2,6], color:'e',
@@ -185,6 +205,11 @@ const GROUP_SYSTEMS = {
           1: 'Earns autonomy by being correct/responsible. (Placeholder — refine wording)',
           2: 'Earns closeness by helping and being needed. (Placeholder — refine wording)',
           6: 'Earns security by doing what\'s expected / covering bases. (Placeholder — refine wording)'
+        },
+        perTypeLong: {
+          1:'',
+          2:'',
+          6:''
         }
       },
       { id:'withdrawn', name:'Withdrawn', types:[4,5,9], color:'f',
@@ -193,6 +218,11 @@ const GROUP_SYSTEMS = {
           4: 'Withdraws into feeling/meaning: "I need space to feel and understand." (Placeholder — refine wording)',
           5: 'Withdraws into thinking: "I need space to think and prepare." (Placeholder — refine wording)',
           9: 'Withdraws into comfort: "I\'ll keep things calm; I don\'t want escalation." (Placeholder — refine wording)'
+        },
+        perTypeLong: {
+          4:'',
+          5:'',
+          9:''
         }
       }
     ]
@@ -206,6 +236,11 @@ const GROUP_SYSTEMS = {
           2: 'Keeps connection by focusing on helping and goodwill. (Placeholder — refine wording)',
           7: 'Keeps mood up by scanning for what could be enjoyable or possible. (Placeholder — refine wording)',
           9: 'Keeps peace by smoothing tension and minimising disturbance. (Placeholder — refine wording)'
+        },
+        perTypeLong: {
+          2:'',
+          7:'',
+          9:''
         }
       },
       { id:'competency', name:'Competency', types:[1,3,5], color:'a',
@@ -214,6 +249,11 @@ const GROUP_SYSTEMS = {
           1: 'Solves by standards: "Let\'s do it the right way." (Placeholder — refine wording)',
           3: 'Solves by efficiency: "Let\'s execute and deliver." (Placeholder — refine wording)',
           5: 'Solves by analysis: "Let me understand the hidden issues." (Placeholder — refine wording)'
+        },
+        perTypeLong: {
+          1:'',
+          3:'',
+          5:''
         }
       },
       { id:'reactive', name:'Reactive', types:[4,6,8], color:'c',
@@ -222,6 +262,11 @@ const GROUP_SYSTEMS = {
           4: 'Needs emotional resonance: "Do you understand what this means and how it feels?" (Draft — review)',
           6: 'Needs reassurance and clarity: "Is this safe, and what\'s the plan?" (Draft — review)',
           8: 'Needs truth and traction: "What\'s actually happening, and what are we going to do?" (Draft — review)'
+        },
+        perTypeLong: {
+          4:'',
+          6:'',
+          8:''
         }
       },
     ]
