@@ -6,589 +6,7 @@
   <title>Enneagram Explorer — Compare + Type (v4)</title>
   <meta name="build-id" content="v15 · long line copy + clickable labels" />
   <meta name="color-scheme" content="light" />
-  <style>
-    :root {
-      --brand-primary: #40C4D3;
-      --brand-text: #1E293B;
-      --brand-text-subtle: #475569;
-      --brand-bg: #FFFFFF;
-      --brand-page-bg: #F3F4F6;
-      --font-heading: Satoshi, Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      --font-body: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      --stroke: rgba(30,41,59,.14);
-      --stroke-2: rgba(30,41,59,.10);
-      --shadow: 0 18px 60px rgba(30,41,59,.12);
-      --shadow-2: 0 10px 30px rgba(30,41,59,.10);
-      --r-xl: 22px;
-      --r-lg: 16px;
-      --r-md: 12px;
-
-      /* overlay palette (restrained) */
-      --ol-a: rgba(59,130,246,.22);  /* blue */
-      --ol-b: rgba(16,185,129,.22);  /* green */
-      --ol-c: rgba(239,68,68,.22);   /* red */
-      --ol-d: rgba(236,72,153,.20);  /* magenta */
-      --ol-e: rgba(245,158,11,.20);  /* amber/yellow */
-      --ol-f: rgba(6,182,212,.20);   /* cyan */
-
-      --line-growth: rgba(34,197,94,.75);
-      --line-stress: rgba(239,68,68,.70);
-    }
-
-    * { box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: var(--brand-page-bg);
-      color: var(--brand-text);
-      font-family: var(--font-body);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(1200px 800px at 18% 12%, color-mix(in srgb, var(--brand-primary) 14%, transparent) 0%, transparent 60%),
-        radial-gradient(900px 700px at 82% 18%, color-mix(in srgb, var(--brand-primary) 9%, transparent) 0%, transparent 62%),
-        radial-gradient(900px 700px at 70% 86%, color-mix(in srgb, var(--brand-primary) 7%, transparent) 0%, transparent 62%),
-        radial-gradient(900px 700px at 16% 86%, rgba(30,41,59,.05) 0%, transparent 62%);
-      opacity: .85;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: .07;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E");
-      background-size: 420px 420px;
-    }
-
-    .wrap {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 220px 1fr;
-      position: relative;
-    }
-
-    .sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      padding: 20px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      border-right: 1px solid var(--stroke-2);
-      background: rgba(255,255,255,.45);
-      overflow-y: auto;
-    }
-
-    .brand h1 {
-      margin: 0;
-      font-family: var(--font-heading);
-      font-weight: 650;
-      letter-spacing: -0.02em;
-      font-size: 18px;
-      line-height: 1.2;
-    }
-
-    .sidebarControls {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .sidebarFoot {
-      margin-top: auto;
-      color: var(--brand-text-subtle);
-      font-size: 11px;
-      line-height: 1.5;
-    }
-    .sidebarFoot kbd {
-      display: inline-block;
-      padding: 1px 6px;
-      border: 1px solid var(--stroke);
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: 10.5px;
-      font-weight: 600;
-      background: rgba(255,255,255,.7);
-    }
-
-    .ctrl {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .ctrl > label {
-      color: var(--brand-text-subtle);
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-    .ctrl select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.85);
-      border-radius: 12px;
-      font: inherit;
-      font-size: 14px;
-      color: var(--brand-text);
-    }
-    .ctrl .mini { font-size: 13px; padding: 8px 10px; }
-
-    /* Vertical segmented control (Mode selector in sidebar) */
-    .seg {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding: 4px;
-      background: rgba(255,255,255,.6);
-      border: 1px solid var(--stroke);
-      border-radius: 12px;
-    }
-    .seg button {
-      appearance: none;
-      border: 0;
-      background: transparent;
-      border-radius: 8px;
-      padding: 10px 12px;
-      font: inherit;
-      font-size: 13.5px;
-      font-weight: 550;
-      color: var(--brand-text);
-      text-align: left;
-      cursor: pointer;
-      transition: background .15s ease;
-    }
-    .seg button:hover { background: rgba(255,255,255,.7); }
-    .seg button.active {
-      background: color-mix(in srgb, var(--brand-primary) 22%, white);
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-primary) 55%, transparent);
-      font-weight: 700;
-      color: color-mix(in srgb, var(--brand-primary) 52%, var(--brand-text));
-    }
-
-    /* Stack the sidebar above main on narrow screens */
-    @media (max-width: 720px) {
-      .wrap { grid-template-columns: 1fr; }
-      .sidebar {
-        position: static;
-        height: auto;
-        border-right: 0;
-        border-bottom: 1px solid var(--stroke-2);
-        padding: 12px 14px;
-      }
-      .sidebarControls { flex-direction: row; flex-wrap: wrap; align-items: flex-end; }
-      .seg { flex-direction: row; }
-      .seg button { text-align: center; }
-      .sidebarFoot { display: none; }
-    }
-
-    main {
-      padding: 12px clamp(10px, 2vw, 24px);
-      overflow: hidden;
-      transition: padding-right .28s cubic-bezier(.2,.7,.2,1);
-    }
-
-    .card {
-      /* Fill available width; height comes from the diagram inside */
-      width: 100%;
-    }
-
-    .card {
-      border-radius: var(--r-xl);
-      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.56));
-      border: 1px solid var(--stroke);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      overflow: clip;
-      position: relative;
-    }
-
-    .btn {
-      appearance: none;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.55);
-      border-radius: 999px;
-      padding: 8px 14px;
-      font: inherit;
-      font-size: 13px;
-      color: var(--brand-text);
-      cursor: pointer;
-      transition: background .15s ease, border-color .15s ease;
-    }
-    .btn:hover { background: #fff; border-color: color-mix(in srgb, var(--brand-primary) 35%, var(--stroke)); }
-    .btn-ghost { background: transparent; border-color: transparent; color: var(--brand-text-subtle); }
-    .btn-ghost:hover { background: rgba(255,255,255,.55); border-color: var(--stroke); color: var(--brand-text); }
-
-    .canvas { padding: 6px 8px 10px; }
-    /* Cap the diagram to the viewport so it never forces scrolling. The 40px
-       buffer covers main's vertical padding and the card border. */
-    .svgWrap {
-      width: 100%;
-      aspect-ratio: 5 / 3;
-      max-height: calc(100vh - 40px);
-      margin: 0 auto;
-      display: grid;
-      place-items: center;
-    }
-    svg { width: 100%; height: 100%; }
-
-    .ring { fill: none; stroke: rgba(30,41,59,.25); stroke-width: 2.1; }
-    .line { stroke: rgba(30,41,59,.14); stroke-width: 1.6; fill: none; }
-
-    .node { cursor: pointer; }
-    .node circle {
-      fill: rgba(255,255,255,.88);
-      stroke: rgba(30,41,59,.24);
-      stroke-width: 1.4;
-      transition: fill .18s ease, stroke .18s ease;
-    }
-    .node text {
-      font-family: var(--font-heading);
-      font-weight: 800;
-      font-size: 18px;
-      fill: rgba(30,41,59,.9);
-      pointer-events: none;
-      transition: fill .18s ease;
-    }
-    .node.hover circle {
-      fill: color-mix(in srgb, var(--brand-primary) 10%, white);
-      stroke: color-mix(in srgb, var(--brand-primary) 48%, rgba(30,41,59,.28));
-    }
-    .node.active circle {
-      fill: color-mix(in srgb, var(--brand-primary) 16%, white);
-      stroke: color-mix(in srgb, var(--brand-primary) 70%, rgba(30,41,59,.28));
-    }
-
-    /* Compare-mode inline labels */
-    .cmpLabel { font-family: var(--font-body); font-size: 12.5px; line-height: 1.28; fill: rgba(30,41,59,.78); pointer-events: none; transition: font-size .18s ease, fill .18s ease; }
-    .cmpLabel tspan.small { fill: rgba(71,85,105,.92); font-size: 11.5px; }
-    .cmpLabelBg { fill: rgba(255,255,255,.78); stroke: rgba(30,41,59,.10); stroke-width: 1; rx: 10; ry: 10; cursor: default; transition: fill .18s ease, stroke .18s ease; }
-    .cmpLabelGroup { transition: filter .22s ease; }
-    .cmpLabelGroup:hover { filter: drop-shadow(0 12px 24px rgba(30,41,59,.14)); }
-    .cmpLabelGroup.expanded .cmpLabelBg { fill: #ffffff; stroke: rgba(30,41,59,.26); filter: drop-shadow(0 22px 44px rgba(30,41,59,.24)); }
-    .cmpLabelGroup.expanded .cmpLabel { fill: var(--brand-text); }
-
-    /* Centre label — rounded card inside the circle.
-       Overview mode: "SHOWING" eyebrow + prompt label (large).
-       Profile mode, no type selected: big CTA.
-       Profile mode, type selected: emoji + name + centre. */
-    .centreLabel { font-family: var(--font-heading); text-anchor: middle; pointer-events: none; }
-    .centreCard {
-      fill: rgba(255,255,255,.94);
-      stroke: rgba(30,41,59,.14);
-      stroke-width: 1;
-      filter: drop-shadow(0 14px 28px rgba(30,41,59,.14));
-    }
-
-    /* Overlay triangles */
-    .triPath { fill: none; stroke: rgba(30,41,59,.14); stroke-width: 2; opacity: .35; transition: opacity .18s ease, stroke-width .18s ease, fill .18s ease; cursor: pointer; }
-    .triPath.on { opacity: .95; stroke-width: 3.4; filter: drop-shadow(0 14px 20px rgba(30,41,59,.12)); }
-
-    .triPath.a { stroke: var(--ol-a); }
-    .triPath.b { stroke: var(--ol-b); }
-    .triPath.c { stroke: var(--ol-c); }
-    .triPath.d { stroke: var(--ol-d); }
-    .triPath.e { stroke: var(--ol-e); }
-    .triPath.f { stroke: var(--ol-f); }
-
-    /* Filled triangles when highlighted */
-    .triPath.a.on { fill: color-mix(in srgb, var(--ol-a) 60%, transparent); }
-    .triPath.b.on { fill: color-mix(in srgb, var(--ol-b) 60%, transparent); }
-    .triPath.c.on { fill: color-mix(in srgb, var(--ol-c) 60%, transparent); }
-    .triPath.d.on { fill: color-mix(in srgb, var(--ol-d) 60%, transparent); }
-    .triPath.e.on { fill: color-mix(in srgb, var(--ol-e) 60%, transparent); }
-    .triPath.f.on { fill: color-mix(in srgb, var(--ol-f) 60%, transparent); }
-
-    /* Triad mode: per-group colour wash on the type nodes */
-    .node.triad-a circle { fill: color-mix(in srgb, var(--ol-a) 50%, white); }
-    .node.triad-b circle { fill: color-mix(in srgb, var(--ol-b) 50%, white); }
-    .node.triad-c circle { fill: color-mix(in srgb, var(--ol-c) 50%, white); }
-    .node.triad-d circle { fill: color-mix(in srgb, var(--ol-d) 50%, white); }
-    .node.triad-e circle { fill: color-mix(in srgb, var(--ol-e) 50%, white); }
-    .node.triad-f circle { fill: color-mix(in srgb, var(--ol-f) 50%, white); }
-    .node.triad-on.triad-a circle { fill: color-mix(in srgb, var(--ol-a) 90%, white); stroke: color-mix(in srgb, var(--ol-a) 85%, rgba(30,41,59,.4)); }
-    .node.triad-on.triad-b circle { fill: color-mix(in srgb, var(--ol-b) 90%, white); stroke: color-mix(in srgb, var(--ol-b) 85%, rgba(30,41,59,.4)); }
-    .node.triad-on.triad-c circle { fill: color-mix(in srgb, var(--ol-c) 90%, white); stroke: color-mix(in srgb, var(--ol-c) 85%, rgba(30,41,59,.4)); }
-    .node.triad-on.triad-d circle { fill: color-mix(in srgb, var(--ol-d) 90%, white); stroke: color-mix(in srgb, var(--ol-d) 85%, rgba(30,41,59,.4)); }
-    .node.triad-on.triad-e circle { fill: color-mix(in srgb, var(--ol-e) 90%, white); stroke: color-mix(in srgb, var(--ol-e) 85%, rgba(30,41,59,.4)); }
-    .node.triad-on.triad-f circle { fill: color-mix(in srgb, var(--ol-f) 90%, white); stroke: color-mix(in srgb, var(--ol-f) 85%, rgba(30,41,59,.4)); }
-
-    /* Line highlight overlays */
-    .arrowPath { fill: none; stroke-width: 5.5; opacity: 0; stroke-linecap: round; stroke-linejoin: round; }
-    .arrowPath.show { opacity: 1; filter: drop-shadow(0 10px 18px rgba(0,0,0,.08)); }
-    .arrowPath.growth { stroke: var(--line-growth); }
-    .arrowPath.stress { stroke: var(--line-stress); }
-
-    /* Profile mode: zoom the SVG to just the ring by switching to a square aspect
-       ratio. Width cap keeps the ring from being absurdly huge on wide monitors;
-       height cap prevents viewport overflow. The JS swaps the viewBox in parallel. */
-    body.profile-mode .svgWrap {
-      aspect-ratio: 1 / 1;
-      max-width: 760px;
-      max-height: calc(100vh - 40px);
-    }
-
-    /* When the drawer is open on a reasonably wide viewport, shrink the main
-       area (not the whole grid) so the diagram and drawer don't overlap. The
-       sidebar stays anchored on the left. */
-    @media (min-width: 860px) {
-      .wrap.drawer-open main { padding-right: min(460px, 50vw); }
-    }
-
-    aside.drawer {
-      position: fixed;
-      top: 0;
-      right: 0;
-      height: 100vh;
-      width: min(460px, 92vw);
-      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.92));
-      border-left: 1px solid var(--stroke);
-      box-shadow: -18px 0 60px rgba(30,41,59,.18);
-      backdrop-filter: blur(14px);
-      overflow-y: auto;
-      z-index: 100;
-      transform: translateX(100%);
-      transition: transform .28s cubic-bezier(.2,.7,.2,1);
-    }
-    aside.drawer.open { transform: translateX(0); }
-
-    .drawer-close {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.82);
-      color: var(--brand-text-subtle);
-      display: grid;
-      place-items: center;
-      font-size: 18px;
-      line-height: 1;
-      cursor: pointer;
-      padding: 0;
-      z-index: 2;
-    }
-    .drawer-close:hover { background: #fff; color: var(--brand-text); }
-
-    .drawer-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,.22);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .28s ease;
-      z-index: 99;
-    }
-    .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
-
-    .panel {
-      padding: 16px 18px 24px;
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-      gap: 12px;
-    }
-
-    .panelTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-
-    .typeTitle { display: flex; align-items: center; gap: 10px; min-width: 0; }
-
-    .emoji {
-      width: 36px;
-      height: 36px;
-      display: grid;
-      place-items: center;
-      border-radius: 12px;
-      background: color-mix(in srgb, var(--brand-primary) 14%, white);
-      border: 1px solid color-mix(in srgb, var(--brand-primary) 40%, rgba(30,41,59,.18));
-      font-size: 18px;
-      flex: 0 0 auto;
-    }
-
-    .typeTitle h2 {
-      margin: 0;
-      font-family: var(--font-heading);
-      font-weight: 750;
-      letter-spacing: -0.015em;
-      font-size: 18px;
-      line-height: 1.1;
-    }
-
-    .typeTitle p {
-      margin: 4px 0 0;
-      color: var(--brand-text-subtle);
-      font-size: 13px;
-      line-height: 1.35;
-      max-width: 52ch;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: none;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      padding: 8px;
-      border-radius: 16px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.55);
-    }
-
-    .tab {
-      border: 0;
-      background: transparent;
-      padding: 8px 10px;
-      border-radius: 999px;
-      font: inherit;
-      font-size: 13px;
-      color: var(--brand-text);
-      cursor: pointer;
-    }
-
-    .tab.active {
-      background: color-mix(in srgb, var(--brand-primary) 14%, white);
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-primary) 34%, transparent);
-      font-weight: 650;
-    }
-
-    .pane { overflow: auto; padding-right: 6px; }
-
-    .section {
-      border: 1px solid var(--stroke-2);
-      border-radius: var(--r-lg);
-      background: rgba(255,255,255,.58);
-      padding: 12px 12px;
-      box-shadow: 0 10px 24px rgba(30,41,59,.06);
-      margin-bottom: 10px;
-    }
-
-    .section h3 {
-      margin: 0 0 8px;
-      font-family: var(--font-heading);
-      font-size: 14px;
-      letter-spacing: -0.01em;
-    }
-
-    .copy { color: rgba(30,41,59,.88); font-size: 14px; line-height: 1.55; }
-    .copy ul { margin: 8px 0 0; padding-left: 18px; }
-    .copy li { margin: 6px 0; }
-    .small { color: var(--brand-text-subtle); font-size: 13px; line-height: 1.4; }
-
-    .chipRow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .chip {
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.62);
-      border-radius: 999px;
-      padding: 8px 10px;
-      font-size: 13px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .chip b { font-weight: 650; }
-
-    .tooltip {
-      position: fixed;
-      z-index: 50;
-      pointer-events: none;
-      max-width: min(420px, calc(100vw - 28px));
-      background: rgba(255,255,255,.84);
-      border: 1px solid var(--stroke);
-      border-radius: 16px;
-      padding: 10px 12px;
-      box-shadow: var(--shadow-2);
-      backdrop-filter: blur(14px);
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity .12s ease, transform .12s ease;
-    }
-
-    .tooltip.show { opacity: 1; transform: translateY(0); }
-
-    .ttTitle { display: flex; align-items: center; gap: 8px; font-family: var(--font-heading); font-weight: 750; letter-spacing: -0.01em; }
-    .ttBody { margin-top: 6px; color: rgba(30,41,59,.86); font-size: 13px; line-height: 1.45; }
-
-    .toast {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      background: rgba(255,255,255,.80);
-      border: 1px solid var(--stroke);
-      border-radius: 14px;
-      padding: 10px 12px;
-      box-shadow: var(--shadow-2);
-      backdrop-filter: blur(14px);
-      display: none;
-      max-width: 420px;
-      color: var(--brand-text);
-      z-index: 60;
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .toast.show { display: block; animation: pop .2s ease; }
-
-    @keyframes pop {
-      from { transform: translateY(8px); opacity: .0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-  /* Debug panel (only visible when DEBUG is on) */
-    .debugPanel{
-      position:absolute;
-      left: 14px;
-      bottom: 14px;
-      z-index: 90;
-      background: rgba(255,255,255,.82);
-      border: 1px solid var(--stroke);
-      border-radius: 14px;
-      padding: 10px 12px;
-      box-shadow: var(--shadow-2);
-      backdrop-filter: blur(12px);
-      display:none;
-      min-width: 260px;
-    }
-    .debugPanel.show{ display:block; }
-    .debugPanel .row{ display:flex; align-items:center; justify-content:space-between; gap: 10px; }
-    .debugPanel .k{ font-size: 11px; color: rgba(71,85,105,.9); letter-spacing:.06em; text-transform: uppercase; }
-    .debugPanel .v{ font-size: 12px; color: rgba(30,41,59,.92); font-weight: 650; }
-    .debugPanel input[type="range"]{ width: 100%; margin-top: 8px; }
-
-    /* Small version badge in the top-right so it's easy to tell at a glance
-       which version of the file is loaded (useful when troubleshooting caching). */
-    .versionBadge {
-      position: fixed;
-      top: 10px;
-      right: 14px;
-      z-index: 200;
-      font-family: var(--font-body);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      color: rgba(71, 85, 105, 0.85);
-      background: rgba(255, 255, 255, 0.82);
-      border: 1px solid var(--stroke);
-      border-radius: 999px;
-      padding: 3px 10px;
-      backdrop-filter: blur(8px);
-      pointer-events: none;
-      user-select: none;
-    }
-
-  </style>
+    <link rel="stylesheet" href="styles.css" />
   <script src="content.js"></script>
 </head>
 <body>
@@ -611,7 +29,7 @@
         <div class="ctrl" id="compareSelect">
           <label for="cmpPrompt">Show</label>
           <select id="cmpPrompt"></select>
-          <select id="cmpSub" class="mini" style="display:none;"></select>
+
         </div>
 
         <button class="btn btn-ghost" id="reset" type="button">Reset</button>
@@ -739,13 +157,14 @@
       { id:'warningSign', label:'Warning sign', stem:'Warning sign:' },
       { id:'linesGrowth', label:'Growth line', stem:'Growth line:' },
       { id:'linesStress', label:'Stress line', stem:'Stress line:' },
-      { id:'groups', label:'Groups (triads)', stem:'Group:' },
+      { id:'groupsCentres',   label:'Centres (Gut/Heart/Head)',        stem:'Centre:' },
+      { id:'groupsHornevian', label:'Hornevian (social style)',         stem:'Hornevian:' },
+      { id:'groupsHarmonic',  label:'Harmonic (coping with conflict)',  stem:'Harmonic:' },
     ];
 
     // --- UI state ---
     let macro = 'compare';
     let comparePrompt = 'coreMotivation';
-    let compareSub = 'harmonic';
     let hoveredGroup = null; // {systemKey, groupId}
     let activeType = null;
     let activeTab = 'overview';
@@ -754,8 +173,6 @@
     const macroSeg = document.getElementById('macroSeg');
     const compareSelectWrap = document.getElementById('compareSelect');
     const cmpPromptSel = document.getElementById('cmpPrompt');
-    const cmpSubSel = document.getElementById('cmpSub');
-
     const stageHint = document.getElementById('stageHint');
     const resetBtn = document.getElementById('reset');
 
@@ -809,36 +226,22 @@
     }
     cmpPromptSel.value = comparePrompt;
 
-    function refreshSubSelector() {
-      if (comparePrompt !== 'groups') {
-        cmpSubSel.style.display = 'none';
-        return;
-      }
-      cmpSubSel.style.display = 'block';
-      cmpSubSel.innerHTML = '';
-      for (const key of Object.keys(GROUP_SYSTEMS)) {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = GROUP_SYSTEMS[key].label;
-        cmpSubSel.appendChild(opt);
-      }
-      cmpSubSel.value = compareSub;
+    // --- Group prompt helpers ---
+    // Returns true when the active compare prompt is one of the three group systems.
+    function isGroupsPrompt(id) { return id && id.startsWith('groups'); }
+    // Maps a groups prompt id to its GROUP_SYSTEMS key.
+    function groupsSubKey(id) {
+      if (id === 'groupsCentres')   return 'centres';
+      if (id === 'groupsHornevian') return 'hornevian';
+      if (id === 'groupsHarmonic')  return 'harmonic';
+      return null;
     }
 
     cmpPromptSel.addEventListener('change', () => {
       comparePrompt = cmpPromptSel.value;
-      refreshSubSelector();
       renderCompareSurface();
       if (activeType && macro === 'compare') renderComparePanel(activeType);
     });
-
-    cmpSubSel.addEventListener('change', () => {
-      compareSub = cmpSubSel.value;
-      renderCompareSurface();
-      if (activeType && macro === 'compare') renderComparePanel(activeType);
-    });
-
-    refreshSubSelector();
 
     // --- SVG nodes with stable scaling ---
     const nodeRadius = 20;
@@ -898,11 +301,12 @@
         showTooltip(e, n);
 
         // In groups mode, hovering a node also surfaces its group triangle.
-        if (macro === 'compare' && comparePrompt === 'groups') {
-          const sys = GROUP_SYSTEMS[compareSub];
+        if (macro === 'compare' && isGroupsPrompt(comparePrompt)) {
+          const subKey = groupsSubKey(comparePrompt);
+          const sys = GROUP_SYSTEMS[subKey];
           const grp = sys.groups.find(x => x.types.includes(n));
           if (grp) {
-            hoveredGroup = { systemKey: compareSub, groupId: grp.id };
+            hoveredGroup = { systemKey: subKey, groupId: grp.id };
             highlightGroup(hoveredGroup);
           }
         }
@@ -919,7 +323,7 @@
         setNodeScale(g, keep);
         hideTooltip();
 
-        if (macro === 'compare' && comparePrompt === 'groups') {
+        if (macro === 'compare' && isGroupsPrompt(comparePrompt)) {
           hoveredGroup = null;
           highlightGroup(pinnedGroup);
         }
@@ -1099,13 +503,15 @@
         if (!a) continue;
 
         // Pick raw text for this type + active prompt
-        let raw;
-        if (comparePrompt === 'groups') {
-          const sys = GROUP_SYSTEMS[compareSub];
+        let raw, longRaw;
+        if (isGroupsPrompt(comparePrompt)) {
+          const sys = GROUP_SYSTEMS[groupsSubKey(comparePrompt)];
           const grp = sys.groups.find(x => x.types.includes(n));
-          raw = grp ? grp.name : '';
+          raw     = grp ? (grp.perType?.[n]     || grp.name) : '';
+          longRaw = grp ? (grp.perTypeLong?.[n] || null)     : null;
         } else {
-          raw = compareValue(n, comparePrompt);
+          raw     = compareValue(n, comparePrompt);
+          longRaw = null;
         }
 
         const lines = wrapTextIntoLines(raw, a.wrap, 3);
@@ -1126,7 +532,7 @@
         bg.setAttribute('height', boxH);
         labelG.appendChild(bg);
 
-        const align = (comparePrompt === 'groups') ? 'centre' : 'left';
+        const align = 'left';
 
         const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         textEl.setAttribute('class', 'cmpLabel');
@@ -1137,7 +543,7 @@
 
         // Stash everything expandLabel/collapseLabel needs
         const item = {
-          n, raw, anchor: a, align,
+          n, raw, longRaw, anchor: a, align,
           truncatedLines: lines,
           truncatedRect: { x, y, w: boxW, h: boxH },
           labelG, bg, textEl,
@@ -1276,15 +682,16 @@
       //
       // For short labels that don't actually overflow, we enforce a minimum
       // "growth" delta so hover is always visually noticeable (not just a shadow).
-      const { anchor: a, raw, bg, textEl, labelG, truncatedRect, padX, padY, lineH, minW, align } = item;
+      const { anchor: a, raw, longRaw, bg, textEl, labelG, truncatedRect, padX, padY, lineH, minW, align } = item;
 
-      // Expanded state uses a slightly larger font. Critically, we measure AND
-      // render at this same size so the box always fits its text.
+      // If a long version exists (e.g. perTypeLong for group prompts), expand into
+      // that text rather than just re-wrapping the short label.
+      const expandRaw = longRaw || raw;
       const expandedFontSize = 13.5;
       const expandedLineH = 16;
 
       // Looser wrap: use ~1.35× the original budget, no max-lines cap.
-      const fullLines = wrapTextIntoLines(raw, Math.round(a.wrap * 1.35), 99);
+      const fullLines = wrapTextIntoLines(expandRaw, Math.round(a.wrap * 1.35), 99);
       const expandedMaxW = Math.min(a.maxW + 120, 380);
       let { boxW, boxH } = measureBox(fullLines, expandedMaxW, padX, padY, expandedLineH, minW, expandedFontSize);
 
@@ -1333,9 +740,9 @@
       for (const g of nodes) {
         g.classList.remove(...colourClasses, 'triad-on');
       }
-      if (macro !== 'compare' || comparePrompt !== 'groups') return;
+      if (macro !== 'compare' || !isGroupsPrompt(comparePrompt)) return;
 
-      const sys = GROUP_SYSTEMS[compareSub];
+      const sys = GROUP_SYSTEMS[groupsSubKey(comparePrompt)];
       for (const grp of sys.groups) {
         for (const typeId of grp.types) {
           const node = document.querySelector(`#nodes g.node[data-type="${typeId}"]`);
@@ -1367,12 +774,13 @@
 
     function renderGroupOverlays() {
       overlayGroupsG.innerHTML = '';
-      if (macro !== 'compare' || comparePrompt !== 'groups') {
+      if (macro !== 'compare' || !isGroupsPrompt(comparePrompt)) {
         highlightGroup(null);
         return;
       }
 
-      const sys = GROUP_SYSTEMS[compareSub];
+      const sysKey = groupsSubKey(comparePrompt);
+      const sys = GROUP_SYSTEMS[sysKey];
 
       for (const grp of sys.groups) {
         const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -1382,7 +790,7 @@
 
         // Hover → transient highlight (unless a group is pinned)
         p.addEventListener('mouseenter', () => {
-          hoveredGroup = { systemKey: compareSub, groupId: grp.id };
+          hoveredGroup = { systemKey: sysKey, groupId: grp.id };
           highlightGroup(hoveredGroup);
         });
         p.addEventListener('mouseleave', () => {
@@ -1391,7 +799,7 @@
         });
         // Click on triangle = pin this group + select its first type's panel
         p.addEventListener('click', () => {
-          pinnedGroup = { systemKey: compareSub, groupId: grp.id };
+          pinnedGroup = { systemKey: sysKey, groupId: grp.id };
           highlightGroup(pinnedGroup);
           // Also pin one of the group's types so the drawer has content
           const firstType = grp.types[0];
@@ -1450,8 +858,8 @@
       if (macro === 'compare') {
         const p = COMPARE_PROMPTS.find(x => x.id === comparePrompt);
         let val = '';
-        if (comparePrompt === 'groups') {
-          const sys = GROUP_SYSTEMS[compareSub];
+        if (isGroupsPrompt(comparePrompt)) {
+          const sys = GROUP_SYSTEMS[groupsSubKey(comparePrompt)];
           const grp = sys.groups.find(x => x.types.includes(t));
           if (grp) {
             val = `${grp.name} — ${grp.summary}`;
@@ -1499,23 +907,31 @@
       panelTitle.textContent = `Compare — ${d.name}`;
       panelLead.textContent = p.label;
 
-      if (comparePrompt === 'groups') {
-        const sys = GROUP_SYSTEMS[compareSub];
+      if (isGroupsPrompt(comparePrompt)) {
+        const subKey = groupsSubKey(comparePrompt);
+        const sys = GROUP_SYSTEMS[subKey];
         const grp = sys.groups.find(x => x.types.includes(t));
         if (!grp) {
           pane.innerHTML = `<div class="section"><div class="copy">No group found.</div></div>`;
           return;
         }
-        const why = grp.perType?.[t] || '(Placeholder — add per-type rationale)';
+        const longCopy = grp.perTypeLong?.[t] || grp.perType?.[t] || '(Content coming soon)';
+        const sysLabel  = sys.label;
 
         pane.innerHTML = `
           <div class="section">
-            <h3>${escapeHtml(grp.name)}</h3>
-            <div class="copy">${escapeHtml(grp.summary)}</div>
+            <h3>${escapeHtml(sysLabel)}: ${escapeHtml(grp.name)}</h3>
+            <div class="copy">${escapeHtml(longCopy)}</div>
           </div>
           <div class="section">
-            <h3>How this can show up for ${escapeHtml(d.name)}</h3>
-            <div class="copy">${escapeHtml(why)}</div>
+            <h3>Context</h3>
+            <div class="copy">
+              <ul>
+                <li><b>Centre:</b> ${escapeHtml(d.centre)}</li>
+                <li><b>Growth line:</b> ${t} → ${d.lines.growth}</li>
+                <li><b>Stress line:</b> ${t} → ${d.lines.stress}</li>
+              </ul>
+            </div>
           </div>
         `;
         return;
@@ -1839,9 +1255,6 @@
         // Auto-shrink the primary if it's a very long prompt label
         const primarySize = p.label.length > 22 ? 22 : (p.label.length > 16 ? 26 : 30);
         lines.push({ text: p.label, size: primarySize, weight: 700, fill: 'rgba(30,41,59,0.94)' });
-        if (comparePrompt === 'groups') {
-          lines.push({ text: GROUP_SYSTEMS[compareSub].label, size: 13, weight: 500, fill: 'rgba(71,85,105,0.85)', gap: 4 });
-        }
       } else if (!activeType) {
         lines.push({ text: 'Click a type', size: 24, weight: 700, fill: 'rgba(30,41,59,0.94)' });
         lines.push({ text: 'to explore its profile', size: 14, weight: 500, fill: 'rgba(71,85,105,0.85)', gap: 4 });
@@ -1921,9 +1334,7 @@
       const p = COMPARE_PROMPTS.find(x => x.id === comparePrompt);
       if (cmpTitleTextEl && p) cmpTitleTextEl.textContent = p.label;
       if (cmpHintTextEl) {
-        cmpHintTextEl.textContent = (comparePrompt === 'groups')
-          ? `System: ${GROUP_SYSTEMS[compareSub].label} — hover a label for the full text • click a type to pin details`
-          : 'Hover a label for the full text • click a type to pin details';
+        cmpHintTextEl.textContent = 'Hover a label for the full text • click a type to pin details';
       }
 
       renderCompareLabels();
@@ -1944,11 +1355,12 @@
           renderLineOverlays(n);
         }
         // In groups mode, clicking a type should pin its group
-        if (comparePrompt === 'groups') {
-          const sys = GROUP_SYSTEMS[compareSub];
+        if (isGroupsPrompt(comparePrompt)) {
+          const subKey = groupsSubKey(comparePrompt);
+          const sys = GROUP_SYSTEMS[subKey];
           const grp = sys.groups.find(x => x.types.includes(n));
           if (grp) {
-            pinnedGroup = { systemKey: compareSub, groupId: grp.id };
+            pinnedGroup = { systemKey: subKey, groupId: grp.id };
             highlightGroup(pinnedGroup);
           }
         }
@@ -1969,7 +1381,7 @@
         panelTitle.textContent = 'Overview';
         panelLead.textContent = 'Choose an attribute to show, then click a type to pin the full text here.';
         tabsEl.style.display = 'none';
-        if (comparePrompt === 'groups') { renderGroupOverlays(); highlightGroup(null); }
+        if (isGroupsPrompt(comparePrompt)) { renderGroupOverlays(); highlightGroup(null); }
       } else {
         panelTitle.textContent = 'Profile';
         panelLead.textContent = 'Click a type number to load that type’s profile.';
